@@ -1,0 +1,449 @@
+const word JOYSTICK              = $dc00
+const word JOYSTICK_UP           = %00000001
+const word JOYSTICK_UP_INVERT    = %11111110
+const word JOYSTICK_DOWN         = %00000010
+const word JOYSTICK_DOWN_INVERT  = %11111101
+const word JOYSTICK_LEFT         = %00000100
+const word JOYSTICK_LEFT_INVERT  = %11111011
+const word JOYSTICK_RIGHT        = %00001000
+const word JOYSTICK_RIGHT_INVERT = %11110111
+const word JOYSTICK_FIRE         = %00010000
+
+const byte MAX_JUMP_DISTANCE     = 17
+
+
+const word GROUND_POSITION          = $1900;
+const word PLAYER_MIN_Y             = $0500;
+
+
+volatile byte joystick_1 @ $dc01
+volatile byte joystick_2 @ $dc00
+
+volatile byte vic_d000 @ $d000
+volatile byte vic_d001 @ $d001
+volatile byte vic_d002 @ $d002
+volatile byte vic_d003 @ $d003
+volatile byte vic_d004 @ $d004
+volatile byte vic_d005 @ $d005
+volatile byte vic_d006 @ $d006
+volatile byte vic_d007 @ $d007
+volatile byte vic_d010 @ $d010
+
+volatile byte vic_d020 @ $d020
+
+const byte PLAYER_SPRITE_OFFSET = 4;
+
+word player_speed_x;
+word player_speed_y;
+
+word player_x;
+word player_y;
+
+// which column the player is in
+byte player_column_x;
+array(byte) player_legs_column_x = [0,0];
+
+// player position in pixels from border
+word player_screen_x;
+word player_screen_y;
+byte game_over_counter;
+
+
+array(byte) ski_sprites   = [8,10,12,14,16,18,20];
+array(byte) turn_decreases_speed = [30, 26, 20, 0, 20, 26, 30];
+
+byte joystick_button_down;
+byte joystick_is_left;
+byte joystick_is_right;
+byte player_direction;
+byte player_on_ground;
+byte player_jump_counter;
+byte invulnerable_counter;
+byte flash_ski_counter;
+byte high_score_achieved;
+byte times_high_score_achieved;
+byte celebrate_counter;
+
+byte decrease_speed_counter;
+
+
+void initPlayerControls() {
+  joystick_button_down = 0;
+  joystick_is_left = 0;
+  joystick_is_right = 0;
+}
+
+void initPlayer() {
+  player_direction = 3;
+  player_on_ground = 1;
+  
+//  player_x = player_x << 4;
+//  player_x = 0x290;
+//  player_x.hi = 148;
+//  player_x.lo = 0;
+
+  player_x = 148;
+  player_x = player_x << 6;
+  player_y = GROUND_POSITION;
+  invulnerable_counter = 0;
+  flash_ski_counter = 0;
+
+  player_direction = 6;
+  downhill_speed = 0;
+  vertical_scroll_amount = 0;
+  max_downhill_speed = 40;
+  //max_downhill_speed = 50;
+  high_score_achieved = 0;
+
+  celebrate_counter = 0;
+  decrease_speed_counter = 0;
+}
+
+void buttonDown() {
+  
+  if(joystick_button_down == 0) {
+    // button has just been pressed
+    joystick_button_down = 1;
+    if(player_on_ground == 1) {
+      // start jump
+      player_jump_counter = MAX_JUMP_DISTANCE;
+    }
+  } 
+  // button already down
+  // continue jump
+  if(player_jump_counter > 0) {
+    player_jump_counter = player_jump_counter - 1;
+    player_speed_y = -120;
+  }
+}
+
+
+void playerIncreaseScore() {
+  score[2] = score[2] + 1;
+  if(score[2] > 0x39) {
+    score[2] = 0x30;
+    score[1] = score[1] + 1;
+  }
+  if(score[1] > 0x39) {
+    score[1] = 0x30;
+    score[0] = score[0] + 1;
+  }
+  if(score[0] > 0x39) {
+    // uh oh, score over 999
+    score[0] = 0x30;
+  }
+
+  if(score[0] < hiscore[0]) {
+    // not a hi score
+    return;
+  }
+
+  if(score[0] == hiscore[0] && score[1] < hiscore[1]) {
+    // not a hi score
+    return;
+  }
+
+  if(score[0] == hiscore[0] && score[1] == hiscore[1] && score[2] == hiscore[2]) {
+    // not a hi score
+    return;
+  }
+
+
+  // hi score!
+  hiscore[0] = score[0];
+  hiscore[1] = score[1];
+  hiscore[2] = score[2];
+
+  if(high_score_achieved == 0) {
+
+    music_position[1] = HIGH_SCORE_SOUND;
+    music_timer[1] = 0;
+    music_done[1] = 0;
+
+    high_score_achieved = 1;
+    celebrate_counter = 100;
+    times_high_score_achieved = times_high_score_achieved + 1;
+    if(times_high_score_achieved == 3) {
+      celebrateWin();
+    }
+  }
+}
+
+void celebrateWin() {
+  times_high_score_achieved = 0;
+}
+
+void playerIncreaseMisses() {
+  if(invulnerable_counter > 0) {
+    return;
+  }
+
+  music_position[0] = MISS_SOUND;
+  music_timer[0] = 0;
+  music_done[0] = 0;  
+  misses = misses + 1;
+  if(misses == 3) {
+    game_state = STATE_GAMEOVER;
+    game_over_counter = 50;
+  }
+}
+
+void playerCrash() {
+  music_position[0] = CRASH_SOUND;
+  music_done[0] = 0;
+
+  game_state = STATE_GAMEOVER;
+  game_over_counter = 50;
+
+}
+
+void playerInvulnerable() {
+  invulnerable_counter = 255;
+}
+
+void playerHasSKI() {
+
+  music_position[1] = SKI_SOUND;
+  music_timer[1] = 0;
+  music_done[1] = 0;
+    
+  has_s = 0;
+  has_k = 0;
+  has_i = 0;
+
+  playerIncreaseScore();
+  playerIncreaseScore();
+  playerIncreaseScore();
+
+  misses = 0;
+  flash_ski_counter = 128;
+}
+
+void gameOverPlayerControls() {
+  if(game_over_counter > 0) {
+    game_over_counter = game_over_counter - 1;
+    return;
+  }
+  if(joystick_1 & JOYSTICK_FIRE == 0 || joystick_2 & JOYSTICK_FIRE == 0) {
+    if(joystick_button_down == 0) {
+      // button has just been pressed
+      rand_seed = player_screen_x;
+
+      joystick_button_down = 1;
+      newGame();
+
+    } 
+
+  } else {
+    joystick_button_down = 0;
+  }
+}
+
+void playerControls() {
+
+  player_speed_y = 120;
+
+  if(joystick_1 & JOYSTICK_FIRE == 0 || joystick_2 & JOYSTICK_FIRE == 0) {
+    buttonDown();
+  } else {
+    joystick_button_down = 0;
+    player_jump_counter = 0;
+  }
+
+
+  if(joystick_1 & JOYSTICK_LEFT == 0|| joystick_2 & JOYSTICK_LEFT == 0) {
+    //rand_seed = player_x.lo;
+    if(joystick_is_left == 0) {
+      if(player_direction > 0) {
+        player_direction = player_direction - 1;
+        decrease_speed_counter = turn_decreases_speed[player_direction];
+      }
+    }
+    joystick_is_left = 1;
+  } else {
+    joystick_is_left = 0;
+  }
+
+  if(joystick_1 & JOYSTICK_RIGHT == 0|| joystick_2 & JOYSTICK_RIGHT == 0) {
+    //rand_seed = player_x.lo;
+    if(joystick_is_right == 0) {
+      if(player_direction < 6) {
+        player_direction = player_direction + 1;
+        decrease_speed_counter = turn_decreases_speed[player_direction];
+      }
+    }
+    joystick_is_right = 1;
+  } else {
+    joystick_is_right = 0;
+  }
+
+}
+
+
+
+void playerMoveY() {
+  if(player_jump_counter > 0) {
+    player_y = player_y - 300;
+    if(player_y < PLAYER_MIN_Y) {
+      player_y = PLAYER_MIN_Y;
+    }
+  } else {
+    player_y = player_y + 300;
+  }
+
+  player_on_ground = 0;
+  if(player_y >= GROUND_POSITION) {
+    player_y =  GROUND_POSITION;
+    player_on_ground = 1;    
+  }
+  
+
+}
+
+void playerDraw() {
+  // x position of player sprite
+  word screen_x;
+  // tile column position of player sprite
+  word column_x;
+  // y position of player sprite
+  word screen_y;
+
+  if(invulnerable_counter > 0) {
+    invulnerable_counter = invulnerable_counter - 1;
+    setSpriteColor(0, 2, rand(), rand(), rand());    
+    setSpriteColor(0, 1, rand(), rand(), rand());    
+    setSpriteColor(0, 4, rand(), rand(), rand());    
+  } else {
+    setSpriteColor(0, 2, 0x18, 0x33, 0x83);
+    setSpriteColor(0, 1, 0xf1, 0x13, 0x99);
+    setSpriteColor(0, 4, 0xfc, 0x39, 0xf9);
+  }
+
+  if(flash_ski_counter > 0) {
+    flash_ski_counter = flash_ski_counter - 1;
+    setSpriteColor(0, 11, rand(), rand(), rand());    
+  } else {
+    setSpriteColor(0, 11, 0x8, 0x8, 0x8);
+  }
+
+
+  //setSpriteColor(0, 8, 0xdd, 0xdd, 0xdd);
+  //setSpriteColor(1, 8, 0xdd, 0xdd, 0xdd);
+  setSpriteColor(2, 8, 0xdd, 0xdd, 0xdd);
+
+  player_screen_y = player_y.hi;
+
+  player_screen_x = player_x >> 6; //player_x.hi;// (player_x >> 8);
+  column_x = (player_screen_x >> 3);
+  player_column_x = column_x.lo;
+
+  column_x = (player_screen_x + 5) >> 3;
+  player_legs_column_x[0] = column_x.lo;
+
+  column_x = (player_screen_x + 10) >> 3;
+  player_legs_column_x[1] = column_x.lo;
+
+  screen_x = player_screen_x + BORDER_WIDTH - PLAYER_SPRITE_OFFSET;
+
+  if(screen_x + 4 < 21) {
+    playerCrash();
+    
+  }
+  if(screen_x > 334) {
+    playerCrash();
+    
+  }
+  screen_y = player_screen_y + BORDER_HEIGHT;
+
+  // skis
+  SPRITE_1_POINTER = ski_sprites[player_direction];
+
+  // shadow
+  SPRITE_2_POINTER = ski_sprites[player_direction];
+
+  vic_d000 = screen_x.lo;
+  vic_d002 = screen_x.lo;
+  vic_d004 = screen_x.lo;
+  
+  if(screen_x.hi & 1 != 0) {
+    vic_d010 = vic_d010 | %00000111;
+  } else {
+    vic_d010 = vic_d010 & %11111000;
+  }
+
+  vic_d001 = screen_y.lo;
+  vic_d003 = screen_y.lo + 6;
+  vic_d005 = 81;
+
+  if(celebrate_counter > 0) {
+    celebrate_counter = celebrate_counter - 1;
+    SPRITE_0_POINTER = 6;
+  } else {
+    SPRITE_0_POINTER = 4;
+  }
+
+}
+
+
+
+
+void playerMoveX() {
+  player_x = player_x + player_speed_x - 5*16;// 5*16;
+}
+
+
+array(word) player_x_max_speeds = [0,1*16,3*16,5*16,7*16,9*16,10*16];// [5,4,2,0,2,4,5];
+array(word) player_x_accn = [4,4,3,4,3,4,4];
+
+void playerCalculateSpeed() {
+  if(player_on_ground == 0) {    
+    return;
+  }
+
+  if(player_speed_x > player_x_max_speeds[player_direction]) {
+    player_speed_x = player_speed_x - player_x_accn[player_direction];
+    if(player_speed_x < player_x_max_speeds[player_direction]) {
+      player_speed_x = player_x_max_speeds[player_direction];
+    }
+  }
+  if(player_speed_x < player_x_max_speeds[player_direction]) {
+    player_speed_x = player_speed_x + player_x_accn[player_direction];
+    if(player_speed_x > player_x_max_speeds[player_direction]) {
+      player_speed_x = player_x_max_speeds[player_direction];
+    }
+  }
+//  player_speed_x = player_speeds[player_direction];
+
+  // if facing left or right, reduce downhill speed
+  if(player_direction == 0 || player_direction == 6) {
+    if(downhill_speed < 100) {
+      downhill_speed = 0;      
+    } else {
+      downhill_speed = downhill_speed - 100; //68;
+    }
+    return;
+  }
+
+//  max_downhill_speed = 80;
+  if(decrease_speed_counter > 0 && downhill_speed > 200) {
+
+    downhill_speed = downhill_speed - 50;
+    decrease_speed_counter = decrease_speed_counter - 1;
+    if(noise_freq < 200) {
+      noise_freq = noise_freq + 1;
+    }
+  } else {
+    if(noise_freq < 60) {
+      noise_freq = 60;
+    }
+    if(noise_freq > 60) {
+      noise_freq = noise_freq - 1;
+    }
+
+    decrease_speed_counter = 0;
+    if(downhill_speed.hi < max_downhill_speed) {
+      downhill_speed = downhill_speed + 32;//16;
+    }
+  }
+
+}

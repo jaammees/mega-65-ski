@@ -1,0 +1,72 @@
+
+const byte FIRST_TILE      = 136
+const byte BLANK_TILE      = FIRST_TILE + 32
+
+const byte FLAG_POLE1_TILE  = FIRST_TILE + 63
+const byte FLAG_POLE2_TILE  = FIRST_TILE + 79
+const byte FLAG_TILE       = FIRST_TILE + 62
+const byte FLAG_OK_TILE    = FIRST_TILE + 61
+
+const byte LOG1_TILE    = FIRST_TILE + 100
+const byte LOG2_TILE    = FIRST_TILE + 101
+const byte LOG3_TILE    = FIRST_TILE + 102
+const byte LOG4_TILE    = FIRST_TILE + 103
+const byte LOG5_TILE    = FIRST_TILE + 104
+const byte LOG6_TILE    = FIRST_TILE + 105
+
+const byte LOG7_TILE    = FIRST_TILE + 116
+const byte LOG8_TILE    = FIRST_TILE + 43
+const byte LOG9_TILE    = FIRST_TILE + 44
+const byte LOG10_TILE    = FIRST_TILE + 45
+const byte LOG11_TILE    = FIRST_TILE + 46
+const byte LOG12_TILE    = FIRST_TILE + 47
+
+const byte TREE1_TILE    = FIRST_TILE + 49
+const byte TREE2_TILE    = FIRST_TILE + 50
+
+const byte TREE3_TILE    = FIRST_TILE + 64
+const byte TREE4_TILE    = FIRST_TILE + 65
+const byte TREE5_TILE    = FIRST_TILE + 66
+const byte TREE6_TILE    = FIRST_TILE + 67
+
+const byte TREE7_TILE    = FIRST_TILE + 80
+const byte TREE8_TILE    = FIRST_TILE + 81
+const byte TREE9_TILE    = FIRST_TILE + 82
+const byte TREE10_TILE    = FIRST_TILE + 83
+
+const byte TREE11_TILE    = FIRST_TILE + 96
+const byte TREE12_TILE    = FIRST_TILE + 97
+const byte TREE13_TILE    = FIRST_TILE + 98
+const byte TREE14_TILE    = FIRST_TILE + 99
+
+
+const byte TREE15_TILE    = FIRST_TILE + 113
+const byte TREE16_TILE    = FIRST_TILE + 114
+
+
+const byte S_TILE        = FIRST_TILE + 106
+const byte K_TILE        = FIRST_TILE + 107
+const byte I_TILE        = FIRST_TILE + 108
+
+const byte R_TILE        = FIRST_TILE + 48
+const byte F_TILE        = FIRST_TILE + 51
+const byte N_TILE        = FIRST_TILE + 109
+
+
+
+const byte TRI1_TILE       = FIRST_TILE + 52
+const byte TRI2_TILE       = FIRST_TILE + 54
+const byte TRI3_TILE       = FIRST_TILE + 56
+const byte TRI4_TILE       = FIRST_TILE + 58
+const byte WATER1_TILE     = FIRST_TILE + 68
+const byte WATER2_TILE     = FIRST_TILE + 68
+
+const byte WATER_LEFT_EDGE1 = FIRST_TILE + 110
+const byte WATER_LEFT_EDGE2 = FIRST_TILE + 94
+const byte WATER_RIGHT_EDGE1 = FIRST_TILE + 111
+const byte WATER_RIGHT_EDGE2 = FIRST_TILE + 95
+
+const byte SNOWMAN_TILE1 = FIRST_TILE + 27;
+const byte SNOWMAN_TILE2 = FIRST_TILE + 28;
+const byte SNOWMAN_TILE3 = FIRST_TILE + 29;
+const byte SNOWMAN_TILE4 = FIRST_TILE + 30;

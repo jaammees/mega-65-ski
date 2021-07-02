@@ -1,0 +1,34 @@
+
+// the locations in memory of current sprites
+//array(byte) sprite_address_low = [0,0,0,0,0,0,0,0];
+//array(byte) sprite_address_high = [0,0,0,0,0,0,0,0];
+array(word) sprite_address = [0,0,0,0,0,0,0,0];
+array(byte) bittable = [1,2,4,8,16,32,64,128];
+
+void getSpriteAddresses() {
+  byte i;
+  byte j;
+  pointer p;
+
+  p = SPRITE_POINTERS;
+  j = 0;
+  for i,0,to,7 {
+    sprite_address[i].lo = p[j];
+    j = j + 1;
+    sprite_address[i].hi = p[j];
+    j = j + 1;
+
+    sprite_address[i] = sprite_address[i] << 6;
+
+  }
+}
+
+
+void checkSprite(byte sprite_to_check) {
+  
+}
+
+void checkSpriteCollisions() {
+  getSpriteAddresses();
+  checkSprite(0);
+}

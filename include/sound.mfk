@@ -1,0 +1,198 @@
+volatile byte sid_voice_1_freq_lo @ $d400
+volatile byte sid_voice_1_freq_hi @ $d401
+volatile byte sid_voice_1_control @ $d404
+volatile byte sid_voice_1_ad      @ $d405
+volatile byte sid_voice_1_sr      @ $d406
+
+volatile byte sid_voice_2_freq_lo @ $d407
+volatile byte sid_voice_2_freq_hi @ $d408
+volatile byte sid_voice_2_control @ $d40b
+volatile byte sid_voice_2_ad      @ $d40c
+volatile byte sid_voice_2_sr      @ $d40d
+
+volatile byte sid_voice_3_freq_lo @ $d40e
+volatile byte sid_voice_3_freq_hi @ $d40f
+volatile byte sid_voice_3_control @ $d412
+volatile byte sid_voice_3_ad      @ $d413
+volatile byte sid_voice_3_sr      @ $d414
+
+
+
+
+const byte GATE_SOUND = 0;
+const byte MISS_SOUND = 2;
+const byte NEXT_LEVEL_SOUND = 4;
+const byte PICKUP_SOUND = 6;
+const byte CRASH_SOUND = 8;
+const byte HIGH_SCORE_SOUND = 10;
+const byte SKI_SOUND = 15;
+const byte INVULNERABLE_SOUND = 20;
+const byte RESET_SPEED_SOUND = 24;
+const byte FASTER_SOUND = 27;
+
+array(byte) music = [
+  //gate_sound (0)
+  0x10,
+  0x00,
+
+  // gate miss sound (2)
+  0x28,
+  0x00,
+
+  //next_level_sound (4)
+  0x17,
+  0x00,
+
+  // pickup_sound (6)
+  0x13,
+  0x00,
+
+  // crash_sound (8)
+  0x89,
+  0x00,
+
+  //high_score_sound (10)
+  0x10,
+  0x13,
+  0x15,
+  0x17,
+  0x00,
+
+  // ski_sound (15)
+  0x10,
+  0x13,
+  //invincible_end_sound (17)
+  0x10,
+  0x15,
+  0x00,
+
+  //invincible_start_sound (20)
+  0x22,
+  0x23,
+  0x13,
+  0x00,
+
+  // reset_speed_sound (24)
+  0x55, 
+  0x51,
+  0x00,
+
+  // faster sound
+  0x13, 
+  0x14,
+  0x15,
+  0x00
+];
+
+//pointer sid_registers;
+
+array(byte) notes_lo = [75,214,52,198,97,172,188,149,100,100];
+array(byte) notes_hi = [34,28,43,45,51,57,64,68,8,17];
+
+array(byte) music_done = [1,1];
+array(byte) music_timer = [0,0];
+array(byte) music_position = [0,0];
+array(byte) voice_control = [0,0];
+//pointer voice_pointer;
+
+byte noise_freq;
+void startNoise() {
+  sid_voice_3_control = %10000001;
+  sid_voice_3_ad = 0;
+  sid_voice_3_sr = 0x51;
+  sid_voice_3_freq_lo = 0;
+  sid_voice_3_freq_hi = noise_freq;
+
+  
+}
+
+void stopNoise() {
+  sid_voice_3_control = %10000000;
+}
+
+
+void initSound() {
+  byte i;
+
+//  sid_registers = 0xd400;
+//  for i,0,to,0x18 {
+//    sid_registers[0] = 0;
+//  }
+
+
+
+  sid_voice_1_ad = 0x0;
+  sid_voice_1_sr = 0xe8;
+
+  sid_voice_2_ad = 0x0;
+  sid_voice_2_sr = 0xe8;
+
+  music_done[0] = 1;
+  music_done[1] = 1;
+}
+
+
+
+void playMusic(byte voice) {
+  byte data;
+  byte note;
+  
+//  if(voice == 0) {
+//    voice_pointer = $d400;
+//  } else {
+//    voice_pointer = $d407;
+//  }
+
+  if(music_done[voice] == 0) {
+
+    if(music_timer[voice] > 0) {
+      music_timer[voice] = music_timer[voice] - 1;
+      if(music_timer[voice] == 0) {
+        // turn off voice
+        voice_control[voice] = voice_control[voice] & 0xf0;
+        if(voice == 0) {
+          sid_voice_1_control = voice_control[voice];
+        } else {
+          sid_voice_2_control = voice_control[voice];
+        }       
+      }
+    } else {
+      music_timer[voice] = 0x0a;
+      data = music[music_position[voice]];
+
+      if(data != 0) {
+
+        note = data & 0x0f;
+
+        // control
+        voice_control[voice] = (data & 0xf0) | 1;
+        if(voice == 0) {
+          sid_voice_1_control = voice_control[voice];
+          sid_voice_1_freq_lo = notes_lo[note];
+          sid_voice_1_freq_hi = notes_hi[note];
+        } else {
+          sid_voice_2_control = voice_control[voice];
+          sid_voice_2_freq_lo = notes_lo[note];
+          sid_voice_2_freq_hi = notes_hi[note];
+
+        }
+        //this causes weird behaviour
+//        voice_pointer[2] = voice_control[voice];
+//        voice_pointer[0] = notes_lo[note];
+//        voice_pointer[1] = notes_hi[note];
+
+        music_position[voice] = music_position[voice] + 1;
+        
+      } else {
+        music_done[voice] = 1;
+      }
+    }
+
+  }
+
+}
+
+void startMusic(byte voice, byte musicIndex) {
+  music_position[voice] = musicIndex;
+  music_done[voice] = 0;
+}

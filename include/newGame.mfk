@@ -1,0 +1,14 @@
+void newGame() {
+  initStatusDisplay();
+  initPlayfield();
+  resetScore();
+  initPlayer();
+  vic_d020 = 6;
+  times_played = times_played + 1;
+
+  // screen is 320 pixels wide
+  // sprite is 16x16
+
+  game_state = STATE_PLAYING;
+
+}

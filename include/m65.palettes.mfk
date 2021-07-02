@@ -1,0 +1,91 @@
+const word TILE_PALETTE_LOCATION                = $e000
+const word TILE_PALETTE_RED_LOCATION            = $e000 
+const word TILE_PALETTE_GREEN_LOCATION          = $e000 + 256
+const word TILE_PALETTE_BLUE_LOCATION           = $e000 + 512
+
+const word SPRITE_PALETTE_LOCATION                = $f000
+const word SPRITE_PALETTE_RED_LOCATION            = $f000 
+const word SPRITE_PALETTE_GREEN_LOCATION          = $f000 + 256
+const word SPRITE_PALETTE_BLUE_LOCATION           = $f000 + 512
+
+
+volatile byte vic4_palette_select @ $d070;
+pointer vic4_red_palette;
+pointer vic4_green_palette;
+pointer vic4_blue_palette;
+
+pointer palette_pointer;
+
+void setSpritePalette() {
+  byte i;
+
+  vic4_palette_select = %01100110;
+  palette_pointer = SPRITE_PALETTE_LOCATION;
+
+  vic4_red_palette = $d100;
+  vic4_green_palette = $d200;
+  vic4_blue_palette = $d300;
+
+  for i,0,to,16 {
+    vic4_red_palette[i] = palette_pointer[i];
+    vic4_green_palette[i] = palette_pointer[i + 256];
+    vic4_blue_palette[i] = palette_pointer[i + 256];
+
+    vic4_red_palette[16 + i] = palette_pointer[i];
+    vic4_green_palette[16 + i] = palette_pointer[i + 256];
+    vic4_blue_palette[16 + i] = palette_pointer[i + 256];
+
+    vic4_red_palette[16 + i] = palette_pointer[i];
+    vic4_green_palette[16 + i] = palette_pointer[i + 256];
+    vic4_blue_palette[16 + i] = palette_pointer[i + 256];
+
+    vic4_red_palette[16 + i] = palette_pointer[i];
+    vic4_green_palette[16 + i] = palette_pointer[i + 256];
+    vic4_blue_palette[16 + i] = palette_pointer[i + 256];
+
+  }
+
+}
+
+void setSpriteColor(byte sprite, byte color, byte red, byte green, byte blue) {
+  byte sprite_offset;
+
+  sprite_offset = sprite << 4;
+  sprite_offset = sprite_offset + color;
+
+  vic4_palette_select = %01100110;
+  vic4_red_palette[sprite_offset] = red;
+  vic4_green_palette[sprite_offset] = green;
+  vic4_blue_palette[sprite_offset] = blue;
+}
+
+void setTilePalette() {
+  vic4_red_palette = $d100;
+  vic4_green_palette = $d200;
+  vic4_blue_palette = $d300;
+  
+  asm {
+
+    // set mapped palette to 01
+    // sprite palette is 01
+    // tile palette is 10
+    lda #%10100110
+    sta $d070
+
+    ldx #$00
+palette_copy_loop:    
+red_palette:
+    lda TILE_PALETTE_RED_LOCATION, x
+    sta $d100, x //Red
+green_palette:
+    lda TILE_PALETTE_GREEN_LOCATION, x
+    sta $d200, x //Green
+blue_palette:	
+    lda TILE_PALETTE_BLUE_LOCATION, x
+    sta $d300, x //Blue
+    inx
+    bne palette_copy_loop
+
+  }
+
+}

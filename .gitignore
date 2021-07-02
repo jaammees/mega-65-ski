@@ -1,0 +1,8 @@
+bin/*.asm
+bin/*.lbl
+bin/*.chrs
+bin/*.clut
+bin/*.info
+bin/*.atr
+bin/*.map
+bt.bat

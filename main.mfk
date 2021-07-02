@@ -1,0 +1,105 @@
+import stdio
+import zeropage
+import m65.setup
+import m65.palettes
+import scroll
+import player
+import tiles
+import playfield
+import sound
+import collisions
+import random
+import statusDisplay
+import newGame
+
+volatile byte VIC2_D020 @ $D020
+volatile byte VIC2_D012 @ $D012
+
+const word CHARSET_LOCATION = $9000;
+
+const byte STATE_TITLE = 0;
+const byte STATE_PLAYING = 1;
+const byte STATE_GAMEOVER = 2;
+byte game_state;
+word downhill_speed;
+byte max_downhill_speed;
+word vertical_scroll_amount;
+byte times_played;
+
+
+
+void main() {
+  times_played = 0;
+  times_high_score_achieved = 0;
+  setupSystem();
+  
+  setupSprites();
+  setTilePalette();
+  setSpritePalette();
+  clearColorRAM();
+  initSound();
+  initScroll();
+  initPlayerControls();
+  rand_seed = 1;
+  newGame();
+
+  while true {
+    // wait for raster line
+    while(VIC2_D012  != 254) {}
+
+    if(game_state == STATE_GAMEOVER) {
+      gameOverPlayerControls();
+      stopNoise();
+      
+    }
+
+    if(game_state == STATE_PLAYING) {
+
+      v_scroll_coarse_needed = 0;
+      playerControls();
+
+      vertical_scroll_amount = vertical_scroll_amount + (downhill_speed >> 3);
+
+      if(vertical_scroll_amount > 60 && player_on_ground == 1) {
+        startNoise();
+      } else {
+        stopNoise();
+      }
+
+      while(vertical_scroll_amount.hi != 0) {
+        scrollFine();
+        playerMoveX();
+        vertical_scroll_amount.hi = vertical_scroll_amount.hi - 1;
+      }
+
+      playerMoveY();
+      playerDraw();
+      playerCalculateSpeed();
+      checkSpriteCollisions();
+
+      if(v_scroll_coarse_needed != 0) {
+        scrollCoarse();
+        playfieldNextRow();
+        checkCollisions();
+      }
+    }
+    //playerDraw();
+    playMusic(0);
+    playMusic(1);
+    drawStatus();
+
+    drawIndicator();
+
+    // make sure raster line finished
+    while(VIC2_D012 == 254) {}
+
+  }
+}
+
+
+const array tilePaletteData @TILE_PALETTE_LOCATION     = file("bin/tilePaletteData.bin");
+const array spritePaletteData @SPRITE_PALETTE_LOCATION = file("bin/spritePaletteData.bin");
+const array tileData @$2200 = file("bin/tileData.bin");
+const array charsetData @CHARSET_LOCATION = file("bin/charset.bin");
+const array spriteData @$8100  = file("bin/spriteData.bin");
+const array statusSprites @$8000 = file("bin/statusSprites.bin");

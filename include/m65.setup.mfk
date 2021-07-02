@@ -1,0 +1,249 @@
+
+const array _m65_internal_clearc65memorymap_=[$a9,$00,$aa,$a8,$4b,$5c,$ea,$60]
+asm void M65_clearc65memorymap() @_m65_internal_clearc65memorymap_ extern
+
+const word SCREEN_ADDR            = $0800
+const word SCREEN_LAST_ROW_ADDR   = $0bc0
+const word SPRITE_POINTERS        = $c40 //$bf8
+volatile byte SPRITE_0_POINTER       @ SPRITE_POINTERS
+volatile byte SPRITE_1_POINTER       @ SPRITE_POINTERS + 2
+volatile byte SPRITE_2_POINTER       @ SPRITE_POINTERS + 4
+volatile byte SPRITE_3_POINTER       @ SPRITE_POINTERS + 6
+volatile byte SPRITE_4_POINTER       @ SPRITE_POINTERS + 8
+volatile byte SPRITE_5_POINTER       @ SPRITE_POINTERS + 10
+volatile byte SPRITE_6_POINTER       @ SPRITE_POINTERS + 12
+volatile byte SPRITE_7_POINTER       @ SPRITE_POINTERS + 14
+
+volatile byte SPRITE_0_COLOR       @ $d027
+volatile byte SPRITE_1_COLOR       @ $d028
+volatile byte SPRITE_2_COLOR       @ $d029
+volatile byte SPRITE_3_COLOR       @ $d02a
+volatile byte SPRITE_4_COLOR       @ $d02b
+volatile byte SPRITE_5_COLOR       @ $d02c
+volatile byte SPRITE_6_COLOR       @ $d02d
+volatile byte SPRITE_7_COLOR       @ $d02e
+
+
+volatile byte SPRITE_0_X       @ $d000
+volatile byte SPRITE_1_X       @ $d002
+volatile byte SPRITE_2_X       @ $d004
+volatile byte SPRITE_3_X       @ $d006
+volatile byte SPRITE_4_X       @ $d008
+volatile byte SPRITE_5_X       @ $d00a
+volatile byte SPRITE_6_X       @ $d00c
+volatile byte SPRITE_7_X       @ $d00e
+
+
+volatile byte SPRITE_0_Y       @ $d001
+volatile byte SPRITE_1_Y       @ $d003
+volatile byte SPRITE_2_Y       @ $d005
+volatile byte SPRITE_3_Y       @ $d007
+volatile byte SPRITE_4_Y       @ $d009
+volatile byte SPRITE_5_Y       @ $d00b
+volatile byte SPRITE_6_Y       @ $d00d
+volatile byte SPRITE_7_Y       @ $d00f
+
+
+// registers
+const word SPRITES_X = $d000
+const word SPRITES_Y = $d001
+const word SPRITES_ENABLED = $d015
+const word SPRITES_X_MSB = $d010
+
+volatile byte sprites_enabled @ $d015
+
+const word COLOUR_RAM_ADDR        = $d800
+const word SPRITE_SCREEN_OFFSET_X = 24
+const word SPRITE_SCREEN_OFFSET_Y = 51
+
+const byte BORDER_WIDTH = 24
+const byte BORDER_HEIGHT = 50
+
+
+
+void setupSystem() {
+  asm {
+    sei
+    // set memory layout (c64??)
+    lda #$35
+    sta $01
+
+    // clear c65 memory map
+    // millfork no support for map and eom, so call M65_defaultmem instead..
+//		lda #$00
+//		tax 
+//		tay 
+//		taz 
+//		map
+//		eom
+//    nop
+
+
+  }
+
+  // clear c64 memory map
+  M65_clearc65memorymap();
+
+  asm {
+
+    // enable vic4 registers
+    // mega65 / vic iv knock
+		lda #$47	
+		sta $d02f
+		lda #$53
+		sta $d02f
+
+
+    // turn off cia interrupts
+    lda #$7f
+    sta $dc0d
+    sta $dd0d
+
+    // turn off raster interrupts used by c65 rom
+    lda #$00
+    sta $d01a
+
+    // disable c65 rom protection
+    // $20000 - $3ffff
+    lda #$70
+    sta $d640
+//    eom
+    nop
+
+    // without this, screen seems to scroll by 1 pixel
+    lda #$c8
+    sta $d016
+
+
+    // enable 40 Mhz
+		lda #$41
+		sta $00 //40 Mhz mode
+
+    cli
+
+    // turn on fcm mode
+    // bit 0 = Enable 16 bit char numbers
+    // bit 1 = Enable Fullcolor for chars <=$ff
+    // bit 2 = Enable Fullcolor for chars >$ff
+    lda #$02
+    sta $d054
+
+    // Set VIC to use 40 column mode display
+    // turn off bit 7 
+    lda #$80		
+    trb $d031 
+
+    // Disable hot register so VIC2 registers 
+    // without setting vic 2 registers can destroy vic 4 registers
+    // wont destroy VIC4 values (bit 7)
+    // turn off bit 7 
+    lda #$80		
+    trb $d05d		
+
+//    lda #$0
+//    sta $d020
+//    sta $d021
+
+    //Adjust screen if not xemu
+    lda $d629 
+//    beq screen_adjust_done
+    lda #0
+    sta $d04f
+    lda #$6a
+    sta $d04e
+
+    // screen has 26 rows of text
+    lda #26
+    sta $d07b
+screen_adjust_done:
+
+  }
+
+}
+
+
+
+void setupSprites() {
+
+  asm {
+
+    // set location of 16 bit sprite pointers 
+    lda #<SPRITE_POINTERS
+    sta $d06c
+
+    lda #>SPRITE_POINTERS
+    sta $d06d
+
+    // 16 bit sprite pointers
+    lda #$80
+    sta $d06e
+
+    // full colour sprite mode
+    // for sprites 0-3
+    lda #$0f
+    sta $d06b
+
+    // SPRX64EN for sprites 0-3
+    lda #$0f
+    sta $d057
+
+    // 16 pixel high sprite heights
+    lda #16
+    sta $d056
+
+    // sprites 0-3 use height in $d056 sprhgten
+    lda #$07
+    sta $d055
+
+    // set transparent colour for sprites
+    ldx #7
+    lda #0
+set_color_loop:
+    sta $d027,x
+    dex
+    bpl set_color_loop
+
+
+    // set sprite 0
+    lda #$04
+    sta SPRITE_POINTERS
+
+    // set sprite 1
+    lda #$2
+    sta SPRITE_POINTERS + 2
+
+
+    // all sprite pointers are $02xx
+    lda #$02
+    sta SPRITE_POINTERS + 1
+    sta SPRITE_POINTERS + 3
+    sta SPRITE_POINTERS + 5
+    sta SPRITE_POINTERS + 7
+    sta SPRITE_POINTERS + 9
+    sta SPRITE_POINTERS + 11
+    sta SPRITE_POINTERS + 13
+    sta SPRITE_POINTERS + 15
+
+    lda #$ff
+    sta SPRITES_ENABLED
+  
+  }
+
+}
+
+
+void clearColorRAM() {
+  asm {
+    ldx #0
+    lda #0
+loop_start:
+    sta COLOUR_RAM_ADDR,x
+    sta COLOUR_RAM_ADDR + $100,x
+    sta COLOUR_RAM_ADDR + $200,x
+    sta COLOUR_RAM_ADDR + $2e8,x
+    inx
+    cpx #0
+    bne loop_start
+  }
+}
+

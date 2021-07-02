@@ -1,0 +1,188 @@
+// sprite 4 - score/high score
+// sprite 5 - ski / xxx background
+// sprite 6 - xxx overlay
+// sprite 7 - SKI overlay
+
+const word SCORE_SPRITE_ADDR  = $8000;
+const word STATUS_SPRITE_ADDR = $8040;
+const word MISSES_SPRITE_ADDR = $8080;
+const word SKI_SPRITE_ADDR    = $80c0;
+
+pointer charAddr;
+pointer spriteAddr;
+
+byte has_s;
+byte has_k;
+byte has_i;
+byte misses;
+
+array(byte) score     = [0x30,0x30,0x30];
+array(byte) hiscore   = [0x30,0x33,0x30];
+
+
+void resetScore() {
+  score[0] = 0x30;
+  score[1] = 0x30;
+  score[2] = 0x30;
+
+  has_s = 0;
+  has_k = 0;
+  has_i = 0;
+
+  misses = 0;
+}
+
+void initStatusDisplay() {
+  byte i;
+
+  // clear the sprites
+  for i,0,to,63 {
+    spriteAddr = SCORE_SPRITE_ADDR;
+    spriteAddr[i] = 0;
+    spriteAddr = STATUS_SPRITE_ADDR;
+    spriteAddr[i] = 0;
+    spriteAddr = MISSES_SPRITE_ADDR;
+    spriteAddr[i] = 0;
+    spriteAddr = SKI_SPRITE_ADDR;
+    spriteAddr[i] = 0;
+  }
+
+  SPRITE_4_POINTER = 0x0;
+  SPRITE_5_POINTER = 0x3;
+  SPRITE_6_POINTER = 0x2;
+  SPRITE_7_POINTER = 0x1;
+
+  // score 
+  SPRITE_4_COLOR = 13;
+  setSpriteColor(0, 13, 0xf1, 0x13, 0x99);
+
+
+  // S-K-I letters
+  SPRITE_5_COLOR = 12;
+
+  // misses xxx
+  SPRITE_6_COLOR = 15;
+
+  // ski/xxx holder
+  SPRITE_7_COLOR = 11;
+
+  // holder colour
+  setSpriteColor(0, 11, 0x08, 0x08, 0x08);
+
+  setSpriteColor(0, 15, 0xd8, 0x73, 0x73);
+  setSpriteColor(0, 12, 0x12, 0x2b, 0xf2);
+
+  SPRITE_4_X = BORDER_WIDTH + 2;
+  SPRITE_5_X = BORDER_WIDTH + 39 - 2;
+  SPRITE_6_X = BORDER_WIDTH + 39 - 2;
+  SPRITE_7_X = BORDER_WIDTH + 39 - 2;
+  vic_d010 = vic_d010 | 0xe0;
+
+  SPRITE_4_Y = BORDER_HEIGHT + 2;
+  SPRITE_5_Y = BORDER_HEIGHT + 2;
+  SPRITE_6_Y = BORDER_HEIGHT + 2;
+  SPRITE_7_Y = BORDER_HEIGHT + 2;
+
+
+}
+
+void drawStatus() {
+  byte i;
+
+  for i,0,to,2 {
+    // score
+    drawCharInSprite(score[i], SCORE_SPRITE_ADDR + i);
+    // hiscore
+    drawCharInSprite(hiscore[i], SCORE_SPRITE_ADDR + 24 + i);
+  }
+
+
+  // status score
+  drawCharInSprite(86, STATUS_SPRITE_ADDR);
+  drawCharInSprite(86, STATUS_SPRITE_ADDR + 1);
+  drawCharInSprite(86, STATUS_SPRITE_ADDR + 2);  
+  drawCharInSprite(19, STATUS_SPRITE_ADDR + 24);
+  drawCharInSprite(11, STATUS_SPRITE_ADDR + 25);
+  drawCharInSprite(9, STATUS_SPRITE_ADDR + 26);
+
+  spriteAddr =  SCORE_SPRITE_ADDR
+
+  if(times_high_score_achieved > 0) {
+    spriteAddr[51] = %01111110;
+    spriteAddr[54] = %01111110;
+  } else {
+    spriteAddr[51] = %00000000;
+    spriteAddr[54] = %00000000;
+  }
+
+  if(times_high_score_achieved > 1) {
+    spriteAddr[52] = %01111110;
+    spriteAddr[55] = %01111110;
+  } else {
+    spriteAddr[52] = %00000000;
+    spriteAddr[55] = %00000000;
+  }
+
+  if(times_high_score_achieved > 2) {
+    spriteAddr[53] = %01111110;
+    spriteAddr[56] = %01111110;
+  } else {
+    spriteAddr[53] = %00000000;
+    spriteAddr[56] = %00000000;
+  }
+
+
+  if(misses > 0) {
+    drawCharInSprite(86, MISSES_SPRITE_ADDR);
+  } else {
+    drawCharInSprite(32, MISSES_SPRITE_ADDR);
+  }
+  if(misses > 1) {
+    drawCharInSprite(86, MISSES_SPRITE_ADDR + 1);
+  } else {
+    drawCharInSprite(32, MISSES_SPRITE_ADDR + 1);
+  }
+  if(misses > 2) {
+    drawCharInSprite(86, MISSES_SPRITE_ADDR + 2);
+  } else {
+    drawCharInSprite(32, MISSES_SPRITE_ADDR + 2);
+  }
+
+
+  if(has_s == 1) {
+    drawCharInSprite(19, SKI_SPRITE_ADDR + 24);
+  } else {
+    drawCharInSprite(32, SKI_SPRITE_ADDR + 24);
+  }
+  if(has_k == 1) {
+    drawCharInSprite(11, SKI_SPRITE_ADDR + 25);
+  } else {
+    drawCharInSprite(32, SKI_SPRITE_ADDR + 25);
+  }
+  if(has_i == 1) {
+    drawCharInSprite(9, SKI_SPRITE_ADDR + 26);
+  } else {
+    drawCharInSprite(32, SKI_SPRITE_ADDR + 26);
+  }
+
+  if(has_s == 1 && has_k == 1 && has_i == 1) {
+    playerHasSKI();
+  }
+}
+
+void drawCharInSprite(word c, pointer sprAddr) {
+  // address of character will be CHARSET_LOCATION + 8*c
+  charAddr = c << 3;
+  charAddr = charAddr + CHARSET_LOCATION;
+
+  sprAddr[0] = charAddr[0];
+  sprAddr[3] = charAddr[1];
+  sprAddr[6] = charAddr[2];
+  sprAddr[9] = charAddr[3];
+  sprAddr[12] = charAddr[4];
+  sprAddr[15] = charAddr[5];
+  sprAddr[18] = charAddr[6];
+  sprAddr[21] = charAddr[7];
+  
+
+}
