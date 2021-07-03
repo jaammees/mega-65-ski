@@ -143,7 +143,7 @@ void playerIncreaseScore() {
     return;
   }
 
-  if(score[0] == hiscore[0] && score[1] == hiscore[1] && score[2] == hiscore[2]) {
+  if(score[0] == hiscore[0] && score[1] == hiscore[1] && score[2] < hiscore[2]) {
     // not a hi score
     return;
   }

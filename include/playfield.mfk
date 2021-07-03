@@ -70,93 +70,47 @@ byte pickup_distance;
 byte level;
 pointer text_location;
 
+void drawText(pointer text, word location) {
+  byte i;
+  byte b;
+  text_location = location;
 
+  i = 0;
+  b = text[i];
+  while(b != 0) {
+    if(b == 32) { 
+      b = FIRST_TILE + 32;
+    } else {
+      b = b + FIRST_TILE - 64;
+    }
+    text_location[i] = b;
+
+    i = i + 1;
+    b = text[i];
+  }
+}
 // draw the instructions
 void drawTitles() {
   byte b;
   byte i;
 
+  drawText(line0, 0x941);
+  drawText(line1, 0x941 + 80);
 
-  i = 0;
-  text_location = $941;
-  b = line0[i]
-  while(b != 0) {
-    if(b == 32) { 
-      b = FIRST_TILE + 32;
-    } else {
-      b = b + FIRST_TILE - 64;
-    }
-    text_location[i] = b;
-    i = i + 1;
-    b = line0[i];
-  }
-
-  i = 0;
-  text_location = $941 + 80;
-  b = line1[i]
-  while(b != 0) {
-    if(b == 32) { 
-      b = FIRST_TILE + 32;
-    } else {
-      b = b + FIRST_TILE - 64;
-    }
-    text_location[i] = b;
-    i = i + 1;
-    b = line1[i];
-  }
-
-  i = 0;
   text_location = $991 + 80;
-  b = line2[i]
-  while(b != 0) {
-    if(b == 32) { 
-      b = FIRST_TILE + 32;
-    } else {     
-      b = b + FIRST_TILE - 64;
-    }
-    text_location[i] = b;
-    i = i + 1;
-    b = line2[i];
-  }
-
+  drawText(line2, text_location);
   text_location[8] = S_TILE;
   text_location[10] = K_TILE;
   text_location[12] = I_TILE;
 
-
-  i = 0;
   text_location = $9e1 + 80;
-  b = line3[i]
-  while(b != 0) {
-    if(b == 32) { 
-      b = FIRST_TILE + 32;
-    } else {     
-      b = b + FIRST_TILE - 64;
-    }
-    text_location[i] = b;
-    i = i + 1;
-    b = line3[i];
-  }
+  drawText(line3, text_location);
   text_location[8] = F_TILE;
   text_location[17] = R_TILE;
   text_location[26] = N_TILE;
 
-
-  i = 0;
   text_location = $a81 + 40;
-  b = line4[i]
-  while(b != 0) {
-    if(b == 32) { 
-      b = FIRST_TILE + 32;
-    } else {     
-      b = b + FIRST_TILE - 64;
-    }
-    text_location[i] = b;
-    i = i + 1;
-    b = line4[i];
-  }
-
-
+  drawText(line4, text_location);
 }
 
 void initPlayfield() {
