@@ -5,14 +5,15 @@ asm void M65_clearc65memorymap() @_m65_internal_clearc65memorymap_ extern
 const word SCREEN_ADDR            = $0800
 const word SCREEN_LAST_ROW_ADDR   = $0bc0
 const word SPRITE_POINTERS        = $c40 //$bf8
-volatile byte SPRITE_0_POINTER       @ SPRITE_POINTERS
-volatile byte SPRITE_1_POINTER       @ SPRITE_POINTERS + 2
-volatile byte SPRITE_2_POINTER       @ SPRITE_POINTERS + 4
-volatile byte SPRITE_3_POINTER       @ SPRITE_POINTERS + 6
-volatile byte SPRITE_4_POINTER       @ SPRITE_POINTERS + 8
-volatile byte SPRITE_5_POINTER       @ SPRITE_POINTERS + 10
-volatile byte SPRITE_6_POINTER       @ SPRITE_POINTERS + 12
-volatile byte SPRITE_7_POINTER       @ SPRITE_POINTERS + 14
+
+volatile byte SPRITE_0_POINTER     @ SPRITE_POINTERS
+volatile byte SPRITE_1_POINTER     @ SPRITE_POINTERS + 2
+volatile byte SPRITE_2_POINTER     @ SPRITE_POINTERS + 4
+volatile byte SPRITE_3_POINTER     @ SPRITE_POINTERS + 6
+volatile byte SPRITE_4_POINTER     @ SPRITE_POINTERS + 8
+volatile byte SPRITE_5_POINTER     @ SPRITE_POINTERS + 10
+volatile byte SPRITE_6_POINTER     @ SPRITE_POINTERS + 12
+volatile byte SPRITE_7_POINTER     @ SPRITE_POINTERS + 14
 
 volatile byte SPRITE_0_COLOR       @ $d027
 volatile byte SPRITE_1_COLOR       @ $d028
@@ -24,24 +25,24 @@ volatile byte SPRITE_6_COLOR       @ $d02d
 volatile byte SPRITE_7_COLOR       @ $d02e
 
 
-volatile byte SPRITE_0_X       @ $d000
-volatile byte SPRITE_1_X       @ $d002
-volatile byte SPRITE_2_X       @ $d004
-volatile byte SPRITE_3_X       @ $d006
-volatile byte SPRITE_4_X       @ $d008
-volatile byte SPRITE_5_X       @ $d00a
-volatile byte SPRITE_6_X       @ $d00c
-volatile byte SPRITE_7_X       @ $d00e
+volatile byte SPRITE_0_X           @ $d000
+volatile byte SPRITE_1_X           @ $d002
+volatile byte SPRITE_2_X           @ $d004
+volatile byte SPRITE_3_X           @ $d006
+volatile byte SPRITE_4_X           @ $d008
+volatile byte SPRITE_5_X           @ $d00a
+volatile byte SPRITE_6_X           @ $d00c
+volatile byte SPRITE_7_X           @ $d00e
 
 
-volatile byte SPRITE_0_Y       @ $d001
-volatile byte SPRITE_1_Y       @ $d003
-volatile byte SPRITE_2_Y       @ $d005
-volatile byte SPRITE_3_Y       @ $d007
-volatile byte SPRITE_4_Y       @ $d009
-volatile byte SPRITE_5_Y       @ $d00b
-volatile byte SPRITE_6_Y       @ $d00d
-volatile byte SPRITE_7_Y       @ $d00f
+volatile byte SPRITE_0_Y           @ $d001
+volatile byte SPRITE_1_Y           @ $d003
+volatile byte SPRITE_2_Y           @ $d005
+volatile byte SPRITE_3_Y           @ $d007
+volatile byte SPRITE_4_Y           @ $d009
+volatile byte SPRITE_5_Y           @ $d00b
+volatile byte SPRITE_6_Y           @ $d00d
+volatile byte SPRITE_7_Y           @ $d00f
 
 
 // registers

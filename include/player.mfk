@@ -118,6 +118,12 @@ void buttonDown() {
 }
 
 
+void increaseDownhillSpeed() {
+  if(max_downhill_speed < 80) {    
+    max_downhill_speed = max_downhill_speed + 1;
+  }
+}
+
 void playerIncreaseScore() {
   score[2] = score[2] + 1;
   if(score[2] > 0x39) {

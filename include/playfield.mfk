@@ -6,7 +6,7 @@ const array line0 = ["SKI UNTIL CRASH OR MISS THREE GATES@" scr];
 const array line1 = ["LEFT AND RIGHT TO STEER BUTTON TO JUMP@" scr];
 const array line2 = ["COLLECT S K I TO RESET MISSES@" scr];
 const array line3 = ["PICKUPS F FASTER R SLOWER N NO PENALTY@" scr];
-const array line4 = ["BEAT HIGH SCORE THREE TIMES@" scr];
+const array line4 = ["BEAT THE HIGH SCORE THREE TIMES@" scr];
 
 // next gate position
 byte next_gate_position;
@@ -15,17 +15,25 @@ byte next_gate_counter;
 byte gate_distance;
 byte gate_h_distance;
 byte last_gate_distance;
+
+// indicator shows next gate
+// hidden in water/tree sections
 word indicator_position;
 byte indicator_visible;
+
+// dont want to increase max speed on every gate
 byte speed_toggle;
 
-const byte GATE_COUNT = 4;
+
 // gates on screen
+const byte GATE_COUNT = 4;
 byte next_free_gate;
 array(byte) gate_active     = [0,0,0,0];
 array(byte) gate_position_y = [0,0,0,0];
 array(byte) gate_position_x = [0,0,0,0];
 
+
+// tiles for a tree
 array(byte) tree_row_1 = [BLANK_TILE, TREE1_TILE, TREE2_TILE, BLANK_TILE];
 array(byte) tree_row_2 = [TREE3_TILE, TREE4_TILE, TREE5_TILE, TREE6_TILE];
 array(byte) tree_row_3 = [TREE7_TILE, TREE8_TILE, TREE9_TILE, TREE10_TILE];
@@ -51,10 +59,16 @@ byte water_next_row_tile1_position;
 byte water_next_row_tile2;
 byte water_next_row_tile2_position;
 
-
+// tiles for logs
 array(byte) log_row_1 = [LOG1_TILE, LOG2_TILE, LOG3_TILE,LOG4_TILE,LOG5_TILE,LOG6_TILE];
 array(byte) log_row_2 = [LOG7_TILE, LOG8_TILE, LOG9_TILE,LOG10_TILE,LOG11_TILE,LOG12_TILE];
 
+byte log_position;
+byte log_counter;
+byte log_row;
+
+
+// tiles for snowmen
 array(byte) snowman_row_1 = [SNOWMAN_TILE1, SNOWMAN_TILE2];
 array(byte) snowman_row_2 = [SNOWMAN_TILE3, SNOWMAN_TILE4];
 
@@ -63,9 +77,6 @@ byte snowman_position;
 byte snowman_counter;
 byte snowman_row;
 
-byte log_position;
-byte log_counter;
-byte log_row;
 
 byte water_counter;
 byte in_water_section;
@@ -76,6 +87,7 @@ byte pickup_position;
 byte pickup_counter;
 byte pickup_distance;
 
+// > 0 if showing well done message
 byte well_done_counter;
 
 byte level;
@@ -741,6 +753,19 @@ void drawLog() {
   if(log_counter >= 20) {
     log_position = rand() & %00001111;
     log_position = log_position + 9;
+
+    if(in_tree_section == 1 && tree_counter < 5) {
+      // same line as a tree, trees are 4 tiles wide
+      if(log_position < tree_position + 4 && log_position + 5 > tree_position) {
+        // overlapping
+        if(tree_position < 16) {
+          log_position = 24;
+        } else {
+          log_position = 5;
+        }
+      }
+
+    }
 
     drawObjectLine(log_position, log_row_1, 6);
     log_counter = 0;

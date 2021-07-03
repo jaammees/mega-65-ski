@@ -1,3 +1,4 @@
+// sid registers
 volatile byte sid_voice_1_freq_lo @ $d400
 volatile byte sid_voice_1_freq_hi @ $d401
 volatile byte sid_voice_1_control @ $d404
@@ -18,7 +19,8 @@ volatile byte sid_voice_3_sr      @ $d414
 
 
 
-
+// sounds which can be played
+// values are indexes into the music array
 const byte GATE_SOUND = 0;
 const byte MISS_SOUND = 2;
 const byte NEXT_LEVEL_SOUND = 4;
@@ -31,6 +33,7 @@ const byte RESET_SPEED_SOUND = 24;
 const byte FASTER_SOUND = 27;
 const byte CELEBRATE_SOUND = 31;
 
+// music data, high byte is waveform, low byte is note
 array(byte) music = [
   //gate_sound (0)
   0x10,
@@ -100,17 +103,21 @@ array(byte) music = [
   0x00
 ];
 
-//pointer sid_registers;
 
+// freq hi and low for notes
 array(byte) notes_lo = [75,214,52,198,97,172,188,149,100,100];
 array(byte) notes_hi = [34,28,43,45,51,57,64,68,8,17];
 
+
+// voice 1 and 2 play music
+// arrays to track playing of music
 array(byte) music_done = [1,1];
 array(byte) music_timer = [0,0];
 array(byte) music_position = [0,0];
 array(byte) voice_control = [0,0];
-//pointer voice_pointer;
 
+
+// voice 3 plays noise
 byte noise_freq;
 void startNoise() {
   sid_voice_3_control = %10000001;
@@ -118,24 +125,22 @@ void startNoise() {
   sid_voice_3_sr = 0x51;
   sid_voice_3_freq_lo = 0;
   sid_voice_3_freq_hi = noise_freq;
-
-  
 }
 
 void stopNoise() {
   sid_voice_3_control = %10000000;
 }
 
+//pointer sid_registers;
 
 void initSound() {
   byte i;
 
+// doing this breaks other stuff, maybe a problem with zero page??
 //  sid_registers = 0xd400;
 //  for i,0,to,0x18 {
 //    sid_registers[0] = 0;
 //  }
-
-
 
   sid_voice_1_ad = 0x0;
   sid_voice_1_sr = 0xe8;

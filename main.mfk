@@ -1,5 +1,4 @@
 import stdio
-import zeropage
 import m65.setup
 import m65.palettes
 import scroll
@@ -11,15 +10,16 @@ import random
 import statusDisplay
 import newGame
 
-volatile byte VIC2_D020 @ $D020
+
+// raster location
 volatile byte VIC2_D012 @ $D012
 
-const word CHARSET_LOCATION = $9000;
-
+// game states
 const byte STATE_TITLE = 0;
 const byte STATE_PLAYING = 1;
 const byte STATE_GAMEOVER = 2;
 byte game_state;
+
 word downhill_speed;
 byte max_downhill_speed;
 word vertical_scroll_amount;
@@ -30,8 +30,9 @@ byte times_played;
 void main() {
   times_played = 0;
   times_high_score_achieved = 0;
-  setupSystem();
-  
+
+  // all the once off stuff
+  setupSystem();  
   setupSprites();
   setTilePalette();
   setSpritePalette();
@@ -39,7 +40,11 @@ void main() {
   initSound();
   initScroll();
   initPlayerControls();
+
+
   rand_seed = 1;
+
+  // start a new game
   newGame();
 
   while true {
@@ -47,9 +52,9 @@ void main() {
     while(VIC2_D012  != 254) {}
 
     if(game_state == STATE_GAMEOVER) {
+      // game over status just waits for button press
       gameOverPlayerControls();
-      stopNoise();
-      
+      stopNoise();      
     }
 
     if(game_state == STATE_PLAYING) {
@@ -57,9 +62,11 @@ void main() {
       v_scroll_coarse_needed = 0;
       playerControls();
 
+      // high byte has number of pixels to scroll 
       vertical_scroll_amount = vertical_scroll_amount + (downhill_speed >> 3);
 
       if(vertical_scroll_amount > 60 && player_on_ground == 1) {
+        // player is moving
         startNoise();
       } else {
         stopNoise();
@@ -76,16 +83,21 @@ void main() {
       playerCalculateSpeed();
 
       if(v_scroll_coarse_needed != 0) {
+        // need to shift everything up by one row
         scrollCoarse();
         playfieldNextRow();
         checkCollisions();
       }
     }
-    //playerDraw();
+
+    // play music/fx in voices 1 and 2
     playMusic(0);
     playMusic(1);
+
+    // draw status at the top
     drawStatus();
 
+    // draw next gate indicator at bottom
     drawIndicator();
 
     // make sure raster line finished
@@ -94,7 +106,7 @@ void main() {
   }
 }
 
-
+// tiles, sprites, character set and palettes
 const array tilePaletteData @TILE_PALETTE_LOCATION     = file("bin/tilePaletteData.bin");
 const array spritePaletteData @SPRITE_PALETTE_LOCATION = file("bin/spritePaletteData.bin");
 const array tileData @$2200 = file("bin/tileData.bin");

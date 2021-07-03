@@ -1,5 +1,0 @@
-volatile byte copy_from_low  @ $04
-volatile byte copy_from_high @ $05
-
-volatile byte copy_to_low    @ $06
-volatile byte copy_to_high   @ $07

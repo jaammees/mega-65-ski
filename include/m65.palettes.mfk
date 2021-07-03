@@ -1,30 +1,39 @@
+// memory locations where palette data is copied from
 const word TILE_PALETTE_LOCATION                = $e000
 const word TILE_PALETTE_RED_LOCATION            = $e000 
 const word TILE_PALETTE_GREEN_LOCATION          = $e000 + 256
 const word TILE_PALETTE_BLUE_LOCATION           = $e000 + 512
 
-const word SPRITE_PALETTE_LOCATION                = $f000
-const word SPRITE_PALETTE_RED_LOCATION            = $f000 
-const word SPRITE_PALETTE_GREEN_LOCATION          = $f000 + 256
-const word SPRITE_PALETTE_BLUE_LOCATION           = $f000 + 512
+const word SPRITE_PALETTE_LOCATION              = $f000
+const word SPRITE_PALETTE_RED_LOCATION          = $f000 
+const word SPRITE_PALETTE_GREEN_LOCATION        = $f000 + 256
+const word SPRITE_PALETTE_BLUE_LOCATION         = $f000 + 512
 
 
+// palette select register
 volatile byte vic4_palette_select @ $d070;
+
+// pointers used for copying
 pointer vic4_red_palette;
 pointer vic4_green_palette;
 pointer vic4_blue_palette;
 
 pointer palette_pointer;
 
+// copy in sprite palette
 void setSpritePalette() {
   byte i;
 
+	// set mapped palette to 01
+	// sprite palette is 01
+	// tile palette is 10
   vic4_palette_select = %01100110;
   palette_pointer = SPRITE_PALETTE_LOCATION;
 
-  vic4_red_palette = $d100;
-  vic4_green_palette = $d200;
-  vic4_blue_palette = $d300;
+  // where to copy the data
+  vic4_red_palette    = $d100;
+  vic4_green_palette  = $d200;
+  vic4_blue_palette   = $d300;
 
   for i,0,to,16 {
     vic4_red_palette[i] = palette_pointer[i];
@@ -47,6 +56,8 @@ void setSpritePalette() {
 
 }
 
+
+// set rgb colour for a particular sprite
 void setSpriteColor(byte sprite, byte color, byte red, byte green, byte blue) {
   byte sprite_offset;
 
@@ -59,33 +70,27 @@ void setSpriteColor(byte sprite, byte color, byte red, byte green, byte blue) {
   vic4_blue_palette[sprite_offset] = blue;
 }
 
+
+// copy in the tile palette
 void setTilePalette() {
-  vic4_red_palette = $d100;
-  vic4_green_palette = $d200;
-  vic4_blue_palette = $d300;
+  byte i;
+
+	// set mapped palette to 01
+	// sprite palette is 01
+	// tile palette is 10
+  vic4_palette_select = %10100110;
+
+  palette_pointer = TILE_PALETTE_LOCATION;
   
-  asm {
+  // where to copy the data
+  vic4_red_palette    = $d100;
+  vic4_green_palette  = $d200;
+  vic4_blue_palette   = $d300;
 
-    // set mapped palette to 01
-    // sprite palette is 01
-    // tile palette is 10
-    lda #%10100110
-    sta $d070
-
-    ldx #$00
-palette_copy_loop:    
-red_palette:
-    lda TILE_PALETTE_RED_LOCATION, x
-    sta $d100, x //Red
-green_palette:
-    lda TILE_PALETTE_GREEN_LOCATION, x
-    sta $d200, x //Green
-blue_palette:	
-    lda TILE_PALETTE_BLUE_LOCATION, x
-    sta $d300, x //Blue
-    inx
-    bne palette_copy_loop
-
+  for i,0,to,255 {
+    vic4_red_palette[i]   = palette_pointer[i];
+    vic4_green_palette[i] = palette_pointer[i + 256];
+    vic4_blue_palette[i]  = palette_pointer[i + 512];
   }
 
 }

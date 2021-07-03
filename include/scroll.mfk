@@ -7,120 +7,46 @@ byte v_scroll_coarse_needed;
 
 volatile byte VIC4_D04E @ $d04e;
 
+// default scroll position
 void initScroll() {
   v_scroll = %00001111;
   VIC4_D04E = v_scroll + D04EVALUE
 }
 
-
-void increaseDownhillSpeed() {
-  if(max_downhill_speed < 80) {
-    
-    max_downhill_speed = max_downhill_speed + 1;
-  }
-}
-
+// scroll screen up by 1 pixel
 void scrollFine() {
-  asm {
-    lda v_scroll
-    bne decrement_v_scroll
-v_scroll_8:
-    // set v scroll to 15
-    lda #%00001111
-    sta v_scroll
-    jmp store_v_scroll    
-decrement_v_scroll:
-    dec v_scroll
-    //dec v_scroll
-store_v_scroll:
-    clc
-    lda v_scroll
-    //lda #0
-    adc #D04EVALUE
-    //ora #D04EVALUE
+  if(v_scroll == 0) {
+    v_scroll = %00001111;
+  } else {
+    v_scroll = v_scroll - 1;
+  }
 
-    sta $d04e
+  VIC4_D04E = v_scroll + D04EVALUE;
 
-    // what to do on each scroll step
-scroll_steps:
-    lda v_scroll
-    cmp #%00001111
-    bne scroll_steps_done
-scroll_step_15:
-    lda #01
-    sta v_scroll_coarse_needed
 
-scroll_steps_done:
+  if(v_scroll == %00001111) {
+    // need to shift everything up 1 row
+    v_scroll_coarse_needed = 1;
   }
 }
 
+pointer copy_from;
+pointer copy_to;
+
+// scroll screen up by 1 row
+// screen is 26 rows high
 void scrollCoarse() {
-  asm {
-    lda #$00
-    sta copy_to_low
-    lda #40
-    sta copy_from_low
-    
-    lda #$08
-    sta copy_to_high
-    sta copy_from_high
+  byte i;
+  byte j;
 
-    // number of rows to copy
-    ldx #25
-copy_data_loop:    
-    // going backwards across the row
-    ldy #39
+  copy_from = 0x828;
+  copy_to = 0x800;
 
-copy_data_line:
-    lda (copy_from_low),y
-    sta (copy_to_low),y
-    dey
-    lda (copy_from_low),y
-    sta (copy_to_low),y
-    dey
-    lda (copy_from_low),y
-    sta (copy_to_low),y
-    dey
-    lda (copy_from_low),y
-    sta (copy_to_low),y
-    dey
-    lda (copy_from_low),y
-    sta (copy_to_low),y
-    dey
-    lda (copy_from_low),y
-    sta (copy_to_low),y
-    dey
-    lda (copy_from_low),y
-    sta (copy_to_low),y
-    dey
-    lda (copy_from_low),y
-    sta (copy_to_low),y
-    dey
-    lda (copy_from_low),y
-    sta (copy_to_low),y
-    dey
-    lda (copy_from_low),y
-    sta (copy_to_low),y
-    dey
-
-    bpl copy_data_line
-
-    clc
-    lda copy_from_low
-    adc #40
-    sta copy_from_low
-    bcc increase_from_done
-    inc copy_from_high
-increase_from_done:
-
-    clc
-    lda copy_to_low
-    adc #40
-    sta copy_to_low
-    bcc increase_to_done
-    inc copy_to_high
-increase_to_done:
-    dex
-    bne copy_data_loop
+  for i,0,to,24 {
+    for j,0,to,39 {
+      copy_to[j] = copy_from[j];
+    }
+    copy_from = copy_from + 40;
+    copy_to = copy_to + 40;
   }
 }

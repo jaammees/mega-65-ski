@@ -1,3 +1,7 @@
+
+// charset used to draw the status, 8 bytes per char
+const word CHARSET_LOCATION = $9000;
+
 // sprite 4 - score/high score
 // sprite 5 - ski / xxx background
 // sprite 6 - xxx overlay
