@@ -46,6 +46,11 @@ byte tree_section_counter;
 byte in_tree_section;
 
 byte water_position;
+byte water_next_row_tile1;
+byte water_next_row_tile1_position;
+byte water_next_row_tile2;
+byte water_next_row_tile2_position;
+
 
 array(byte) log_row_1 = [LOG1_TILE, LOG2_TILE, LOG3_TILE,LOG4_TILE,LOG5_TILE,LOG6_TILE];
 array(byte) log_row_2 = [LOG7_TILE, LOG8_TILE, LOG9_TILE,LOG10_TILE,LOG11_TILE,LOG12_TILE];
@@ -114,6 +119,8 @@ void initPlayfield() {
   water_direction = 1;
   in_water_section = 0;
   water_gap_size = 15;
+  water_next_row_tile1 = 0;
+  water_next_row_tile2 = 0;
 
 
   pickup_position = 10;
@@ -200,7 +207,8 @@ void checkCollisions() {
   if(invulnerable_counter == 0) {
     //for i,0,to,1 {
       tile = screen_player_row[player_legs_column_x[0]];
-      if(tile == TREE3_TILE || tile == TREE4_TILE || tile == TREE5_TILE || tile == TREE6_TILE || tile == TREE7_TILE || tile == TREE8_TILE || tile == TREE9_TILE || tile == TREE10_TILE || tile == TREE11_TILE || tile == TREE12_TILE || tile == TREE13_TILE || tile == TREE14_TILE || tile == TREE15_TILE || tile == TREE16_TILE) {
+      // remove tile == TREE3_TILE , give a bit of leeway
+      if(tile == TREE4_TILE || tile == TREE5_TILE || tile == TREE6_TILE || tile == TREE7_TILE || tile == TREE8_TILE || tile == TREE9_TILE || tile == TREE10_TILE || tile == TREE11_TILE || tile == TREE12_TILE || tile == TREE13_TILE || tile == TREE14_TILE || tile == TREE15_TILE || tile == TREE16_TILE) {
         playerCrash();      
       }
 
@@ -359,7 +367,7 @@ void startWaterSection() {
 void endWaterSection() {
   level = level + 1;
   //startMusic(0, NEXT_LEVEL_SOUND);
-  increaseDownhillSpeed();
+//  increaseDownhillSpeed();
   increaseDownhillSpeed();
 
   in_water_section = 0;
@@ -381,13 +389,31 @@ void drawWater() {
   byte i;
 
   for i,0,to,39 {
+    temp = rand();
+    
     screen_last_row[i] = WATER2_TILE;
+    if(temp < 4) {
+      screen_last_row[i] = WAVE1_TILE;
+    } else if(temp < 8) {
+      screen_last_row[i] = WAVE2_TILE;
+    }
   }
 
 
+  if(water_next_row_tile1 != 0) {
+    screen_last_row[water_next_row_tile1_position] = water_next_row_tile1;
+  }
+  if(water_next_row_tile2 != 0) {
+    screen_last_row[water_next_row_tile2_position] = water_next_row_tile2;
+  }
   temp = rand();
   right_side_tile = WATER1_TILE;
+  if(water_next_row_tile1 != 0) {
+    right_side_tile = water_next_row_tile1;
+  }
   left_side_tile = WATER_RIGHT_EDGE1;
+  water_next_row_tile1 = 0;
+  water_next_row_tile2 = 0;
 
   if(temp > 80) {
     if(water_direction == 0) {
@@ -398,6 +424,9 @@ void drawWater() {
         if(rand() > 128) {
           right_side_tile = right_side_tile + 1;
         }
+        water_next_row_tile1 = FIRST_TILE + 76;
+        water_next_row_tile1_position = water_position + water_gap_size;
+
         left_side_tile = TRI2_TILE;
         if(rand() > 128) {
           left_side_tile = left_side_tile + 1;
@@ -416,6 +445,8 @@ void drawWater() {
         if(rand() > 128) {
           left_side_tile = left_side_tile + 1;
         }
+        water_next_row_tile2 = FIRST_TILE + 77;
+        water_next_row_tile2_position = water_position;
       } else {
         water_direction = 0;
       }
@@ -425,12 +456,29 @@ void drawWater() {
   //water_position = 20;
 
   screen_last_row[water_position] = left_side_tile;
+
+  if(water_position > 1) {
+    temp = screen_last_row[water_position - 1];
+    if(temp == WAVE1_TILE || temp == WAVE2_TILE) {
+       screen_last_row[water_position - 1] = WATER2_TILE;
+    }
+    screen_last_row[water_position - 2] = WATER2_TILE;
+  }
   
 
   for i,1,to,water_gap_size {
     screen_last_row[i + water_position] = BLANK_TILE;
   }
-  screen_last_row[water_position + water_gap_size] = right_side_tile;
+
+  temp = water_position + water_gap_size;
+  screen_last_row[temp] = right_side_tile;
+  if(temp < 37) {
+    
+    if(screen_last_row[temp + 1] == WAVE1_TILE || screen_last_row[temp + 1] == WAVE2_TILE) {
+      screen_last_row[temp + 1] = WATER2_TILE;
+    }
+    screen_last_row[temp + 2] = WATER2_TILE;
+  }
 
   
   if(right_side_tile == WATER1_TILE) {

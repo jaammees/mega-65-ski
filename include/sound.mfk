@@ -29,6 +29,7 @@ const byte SKI_SOUND = 15;
 const byte INVULNERABLE_SOUND = 20;
 const byte RESET_SPEED_SOUND = 24;
 const byte FASTER_SOUND = 27;
+const byte CELEBRATE_SOUND = 31;
 
 array(byte) music = [
   //gate_sound (0)
@@ -77,10 +78,25 @@ array(byte) music = [
   0x51,
   0x00,
 
-  // faster sound
+  // faster sound (27)
   0x13, 
   0x14,
   0x15,
+  0x00,
+
+  // celebrate sound (31)
+  0x13, 
+  0x17,
+  0x15,
+  0x15, 
+  0x14,
+  0x13,
+  0x12,
+  0x11,
+  0x13,
+  0x15,
+  0x14,
+  0x11,
   0x00
 ];
 

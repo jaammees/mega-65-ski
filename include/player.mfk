@@ -91,7 +91,7 @@ void initPlayer() {
   player_direction = 6;
   downhill_speed = 0;
   vertical_scroll_amount = 0;
-  max_downhill_speed = 40;
+  max_downhill_speed = 45;
   //max_downhill_speed = 50;
   high_score_achieved = 0;
 
@@ -155,16 +155,19 @@ void playerIncreaseScore() {
   hiscore[2] = score[2];
 
   if(high_score_achieved == 0) {
-
-    music_position[1] = HIGH_SCORE_SOUND;
     music_timer[1] = 0;
     music_done[1] = 0;
+
 
     high_score_achieved = 1;
     celebrate_counter = 100;
     times_high_score_achieved = times_high_score_achieved + 1;
     if(times_high_score_achieved == 3) {
+      music_position[1] = CELEBRATE_SOUND;
       celebrateWin();
+    } else {
+      music_position[1] = HIGH_SCORE_SOUND;
+
     }
   }
 }
@@ -378,8 +381,10 @@ void playerDraw() {
 
   if(celebrate_counter > 0) {
     celebrate_counter = celebrate_counter - 1;
+    setSpriteColor(0, 13, rand(), rand(), rand());
     SPRITE_0_POINTER = 6;
   } else {
+    setSpriteColor(0, 13, 0xf1, 0x13, 0x99);
     SPRITE_0_POINTER = 4;
   }
 
@@ -425,9 +430,9 @@ void playerCalculateSpeed() {
     return;
   }
 
-//  max_downhill_speed = 80;
-  if(decrease_speed_counter > 0 && downhill_speed > 200) {
 
+  // decrease speed counter is positive when the player turns
+  if(decrease_speed_counter > 0 && downhill_speed.hi > 10) {
     downhill_speed = downhill_speed - 50;
     decrease_speed_counter = decrease_speed_counter - 1;
     if(noise_freq < 200) {

@@ -60,6 +60,8 @@ const byte TRI3_TILE       = FIRST_TILE + 56
 const byte TRI4_TILE       = FIRST_TILE + 58
 const byte WATER1_TILE     = FIRST_TILE + 68
 const byte WATER2_TILE     = FIRST_TILE + 68
+const byte WAVE1_TILE      = FIRST_TILE + 74
+const byte WAVE2_TILE      = FIRST_TILE + 75
 
 const byte WATER_LEFT_EDGE1 = FIRST_TILE + 110
 const byte WATER_LEFT_EDGE2 = FIRST_TILE + 94
