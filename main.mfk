@@ -7,7 +7,6 @@ import player
 import tiles
 import playfield
 import sound
-import collisions
 import random
 import statusDisplay
 import newGame
@@ -75,7 +74,6 @@ void main() {
       playerMoveY();
       playerDraw();
       playerCalculateSpeed();
-      checkSpriteCollisions();
 
       if(v_scroll_coarse_needed != 0) {
         scrollCoarse();
