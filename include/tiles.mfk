@@ -70,3 +70,8 @@ const byte SNOWMAN_TILE1 = FIRST_TILE + 27;
 const byte SNOWMAN_TILE2 = FIRST_TILE + 28;
 const byte SNOWMAN_TILE3 = FIRST_TILE + 29;
 const byte SNOWMAN_TILE4 = FIRST_TILE + 30;
+
+const byte FLOWER1_TILE = FIRST_TILE + 31;
+const byte FLOWER2_TILE = FIRST_TILE + 84;
+const byte FLOWER3_TILE = FIRST_TILE + 112;
+const byte FLOWER4_TILE = FIRST_TILE + 115;

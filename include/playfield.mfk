@@ -71,6 +71,8 @@ byte pickup_position;
 byte pickup_counter;
 byte pickup_distance;
 
+byte well_done_counter;
+
 byte level;
 pointer text_location;
 
@@ -93,32 +95,12 @@ void drawText(pointer text, word location) {
     b = text[i];
   }
 }
-// draw the instructions
-void drawTitles() {
-  byte b;
-  byte i;
 
-  drawText(line0, 0x941);
-  drawText(line1, 0x941 + 80);
-
-  text_location = $991 + 80;
-  drawText(line2, text_location);
-  text_location[8] = S_TILE;
-  text_location[10] = K_TILE;
-  text_location[12] = I_TILE;
-
-  text_location = $9e1 + 80;
-  drawText(line3, text_location);
-  text_location[8] = F_TILE;
-  text_location[17] = R_TILE;
-  text_location[26] = N_TILE;
-
-  text_location = $a81 + 40;
-  drawText(line4, text_location);
-}
 
 void initPlayfield() {
   byte i;
+
+  well_done_counter = 0;
 
   indicator_visible = 1;
   log_counter = 4;
@@ -167,6 +149,31 @@ void initPlayfield() {
 
   water_position = 20;
 }
+
+// draw the instructions
+void drawTitles() {
+  byte b;
+  byte i;
+
+  drawText(line0, 0x941);
+  drawText(line1, 0x941 + 80);
+
+  text_location = $991 + 80;
+  drawText(line2, text_location);
+  text_location[8] = S_TILE;
+  text_location[10] = K_TILE;
+  text_location[12] = I_TILE;
+
+  text_location = $9e1 + 80;
+  drawText(line3, text_location);
+  text_location[8] = F_TILE;
+  text_location[17] = R_TILE;
+  text_location[26] = N_TILE;
+
+  text_location = $a81 + 40;
+  drawText(line4, text_location);
+}
+
 
 void clearPlayfield() {
   asm {
@@ -448,6 +455,12 @@ void playfieldNextRow() {
     screen_last_row[i] = BLANK_TILE;
   }  
 
+
+  if(well_done_counter > 0) {
+    well_done_counter = well_done_counter - 1;
+    drawWellDone();
+    return;
+  }
 
   // keep track of distance since last gate so dont start water too close
   if(last_gate_distance < 14) {
@@ -782,3 +795,44 @@ void drawSnowmen() {
 }
 
 
+void drawWellDone() {
+  byte i;
+  byte temp;
+
+  for i,0,to,10 {
+    temp = rand();
+    if(temp < 4) {
+      screen_last_row[i] = FLOWER1_TILE;
+    } else if(temp < 8) {
+      screen_last_row[i] = FLOWER2_TILE;
+    } else if(temp < 12) {
+      screen_last_row[i] = FLOWER3_TILE;
+    } else if(temp < 16) {
+      screen_last_row[i] = FLOWER4_TILE;
+    }
+
+    temp = rand();
+    if(temp < 4) {
+      screen_last_row[29 + i] = FLOWER1_TILE;
+    } else if(temp < 8) {
+      screen_last_row[29 + i] = FLOWER2_TILE;
+    } else if(temp < 12) {
+      screen_last_row[29 + i] = FLOWER3_TILE;
+    } else if(temp < 16) {
+      screen_last_row[29 + i] = FLOWER4_TILE;
+    }
+  }
+
+  if(well_done_counter == 110) {
+    screen_last_row[15] = FIRST_TILE + 23;
+    screen_last_row[16] = FIRST_TILE + 5;
+    screen_last_row[17] = FIRST_TILE + 12;
+    screen_last_row[18] = FIRST_TILE + 12;
+
+    screen_last_row[21] = FIRST_TILE + 4;
+    screen_last_row[22] = FIRST_TILE + 15;
+    screen_last_row[23] = FIRST_TILE + 14;
+    screen_last_row[24] = FIRST_TILE + 5;
+  }
+
+}

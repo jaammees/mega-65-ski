@@ -17,7 +17,7 @@ byte has_i;
 byte misses;
 
 array(byte) score     = [0x30,0x30,0x30];
-array(byte) hiscore   = [0x30,0x33,0x30];
+array(byte) hiscore   = [0x30,0x30,0x32];
 
 
 void resetScore() {

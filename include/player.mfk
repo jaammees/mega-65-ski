@@ -170,6 +170,7 @@ void playerIncreaseScore() {
 }
 
 void celebrateWin() {
+  well_done_counter = 120;
   times_high_score_achieved = 0;
 }
 
