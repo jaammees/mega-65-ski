@@ -74,8 +74,6 @@ void initPlayerControls() {
 }
 
 void initPlayer() {
-  player_direction = 3;
-  player_on_ground = 1;
   
 //  player_x = player_x << 4;
 //  player_x = 0x290;
@@ -88,7 +86,9 @@ void initPlayer() {
   invulnerable_counter = 0;
   flash_ski_counter = 0;
 
-  player_direction = 3;//6;
+  player_direction = 6;
+  player_on_ground = 1;
+
   downhill_speed = 0;
   vertical_scroll_amount = 0;
   max_downhill_speed = 45;

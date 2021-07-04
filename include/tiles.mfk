@@ -21,8 +21,8 @@ const byte LOG10_TILE    = FIRST_TILE + 119
 const byte LOG11_TILE    = FIRST_TILE + 92
 const byte LOG12_TILE    = FIRST_TILE + 93
 
-const byte TREE1_TILE    = FIRST_TILE + 49
-const byte TREE2_TILE    = FIRST_TILE + 50
+const byte TREE1_TILE    = FIRST_TILE + 90
+const byte TREE2_TILE    = FIRST_TILE + 91
 
 const byte TREE3_TILE    = FIRST_TILE + 64
 const byte TREE4_TILE    = FIRST_TILE + 65
@@ -48,8 +48,8 @@ const byte S_TILE        = FIRST_TILE + 106
 const byte K_TILE        = FIRST_TILE + 107
 const byte I_TILE        = FIRST_TILE + 108
 
-const byte R_TILE        = FIRST_TILE + 48
-const byte F_TILE        = FIRST_TILE + 51
+const byte R_TILE        = FIRST_TILE + 73
+const byte F_TILE        = FIRST_TILE + 89
 const byte N_TILE        = FIRST_TILE + 109
 
 
@@ -67,6 +67,12 @@ const byte WATER_TOP1_TILE  = FIRST_TILE + 86;
 const byte WATER_TOP2_TILE  = FIRST_TILE + 87;
 const byte WATER_TOP_RIGHT_CORNER = FIRST_TILE + 88;
 const byte WATER_TOP_LEFT_CORNER = FIRST_TILE + 85;
+
+
+const byte WATER_BOTTOM1_TILE  = FIRST_TILE + 70;
+const byte WATER_BOTTOM2_TILE  = FIRST_TILE + 71;
+const byte WATER_BOTTOM_RIGHT_CORNER = FIRST_TILE + 72;
+const byte WATER_BOTTOM_LEFT_CORNER = FIRST_TILE + 69;
 
 const byte WATER_LEFT_EDGE1 = FIRST_TILE + 110
 const byte WATER_LEFT_EDGE2 = FIRST_TILE + 94
