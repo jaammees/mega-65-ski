@@ -347,10 +347,10 @@ void playerDraw() {
   column_x = (player_screen_x >> 3);
   player_column_x = column_x.lo;
 
-  column_x = (player_screen_x + 5) >> 3;
+  column_x = (player_screen_x ) >> 3;
   player_legs_column_x[0] = column_x.lo;
 
-  column_x = (player_screen_x + 10) >> 3;
+  column_x = (player_screen_x + 8) >> 3;
   player_legs_column_x[1] = column_x.lo;
 
   screen_x = player_screen_x + BORDER_WIDTH - PLAYER_SPRITE_OFFSET;

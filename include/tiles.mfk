@@ -15,11 +15,11 @@ const byte LOG5_TILE    = FIRST_TILE + 104
 const byte LOG6_TILE    = FIRST_TILE + 105
 
 const byte LOG7_TILE    = FIRST_TILE + 116
-const byte LOG8_TILE    = FIRST_TILE + 43
-const byte LOG9_TILE    = FIRST_TILE + 44
-const byte LOG10_TILE    = FIRST_TILE + 45
-const byte LOG11_TILE    = FIRST_TILE + 46
-const byte LOG12_TILE    = FIRST_TILE + 47
+const byte LOG8_TILE    = FIRST_TILE + 117
+const byte LOG9_TILE    = FIRST_TILE + 118
+const byte LOG10_TILE    = FIRST_TILE + 119
+const byte LOG11_TILE    = FIRST_TILE + 92
+const byte LOG12_TILE    = FIRST_TILE + 93
 
 const byte TREE1_TILE    = FIRST_TILE + 49
 const byte TREE2_TILE    = FIRST_TILE + 50

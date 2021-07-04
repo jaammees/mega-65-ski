@@ -6,7 +6,6 @@ void newGame() {
   initPlayfield();
   resetScore();
   initPlayer();
-
   game_state = STATE_PLAYING;
   times_played = times_played + 1;
 }

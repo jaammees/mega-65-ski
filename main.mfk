@@ -10,6 +10,7 @@ import random
 import statusDisplay
 import newGame
 
+const word TILE_DATA_LOCATION = $2200;
 
 // raster location
 volatile byte VIC2_D012 @ $D012
@@ -65,7 +66,7 @@ void main() {
       // high byte has number of pixels to scroll 
       vertical_scroll_amount = vertical_scroll_amount + (downhill_speed >> 3);
 
-      if(vertical_scroll_amount > 60 && player_on_ground == 1) {
+      if(vertical_scroll_amount.hi > 00 && player_on_ground == 1) {
         // player is moving
         startNoise();
       } else {
@@ -73,10 +74,14 @@ void main() {
       }
 
       while(vertical_scroll_amount.hi != 0) {
+        
         scrollFine();
         playerMoveX();
-        vertical_scroll_amount.hi = vertical_scroll_amount.hi - 1;
+        drawPlayerTrack();        
+  
+        vertical_scroll_amount.hi = vertical_scroll_amount.hi - 1;        
       }
+
 
       playerMoveY();
       playerDraw();
@@ -87,7 +92,12 @@ void main() {
         scrollCoarse();
         playfieldNextRow();
         checkCollisions();
+        coarseScrollTrackTiles();
       }
+
+      animateWater();
+
+
     }
 
     // play music/fx in voices 1 and 2
@@ -109,7 +119,7 @@ void main() {
 // tiles, sprites, character set and palettes
 const array tilePaletteData @TILE_PALETTE_LOCATION     = file("bin/tilePaletteData.bin");
 const array spritePaletteData @SPRITE_PALETTE_LOCATION = file("bin/spritePaletteData.bin");
-const array tileData @$2200 = file("bin/tileData.bin");
+const array tileData @TILE_DATA_LOCATION = file("bin/tileData.bin");
 const array charsetData @CHARSET_LOCATION = file("bin/charset.bin");
 const array spriteData @$8100  = file("bin/spriteData.bin");
 const array statusSprites @$8000 = file("bin/statusSprites.bin");

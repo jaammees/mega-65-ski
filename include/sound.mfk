@@ -136,7 +136,7 @@ void stopNoise() {
 void initSound() {
   byte i;
 
-// doing this breaks other stuff, maybe a problem with zero page??
+/// doing this breaks other stuff, maybe a problem with zero page??
 //  sid_registers = 0xd400;
 //  for i,0,to,0x18 {
 //    sid_registers[0] = 0;
