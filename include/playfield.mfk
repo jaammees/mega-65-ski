@@ -85,6 +85,7 @@ const byte TRACK_TILE_COUNT = 19;
 
 array(byte) track_tile_used = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 array(byte) track_tile_row =  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+array(byte) replaced_tile =   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 
 array(byte) track_tiles = [
   FIRST_TILE + 33,
@@ -261,12 +262,25 @@ clear_playfield_loop:
 void checkCollisions() {
   byte tile;
   byte i;
+  byte j;
 
   //for i,0,to,2 {
   // trees
   if(invulnerable_counter == 0) {
     //for i,0,to,1 {
       tile = screen_player_row[player_legs_column_x[0]];
+
+      if(tile >= FIRST_TILE + 33 || tile < FIRST_TILE + 33 + TRACK_TILE_COUNT - 1) {
+        // tile has been replaced
+        for j,0,to,TRACK_TILE_COUNT - 1 {
+          if(track_tiles[i] == tile) {
+            tile = replaced_tile[tile];
+          }
+        }
+      }
+
+//          replaced_tile[track_tile_index] = tile_index;
+
       // remove tile == TREE3_TILE , give a bit of leeway
       if(tile == TREE4_TILE || tile == TREE5_TILE || tile == TREE6_TILE || tile == TREE7_TILE || tile == TREE8_TILE || tile == TREE9_TILE || tile == TREE10_TILE || tile == TREE11_TILE || tile == TREE12_TILE || tile == TREE13_TILE || tile == TREE14_TILE || tile == TREE15_TILE || tile == TREE16_TILE) {
         playerCrash();      
@@ -284,6 +298,14 @@ void checkCollisions() {
 
       //for i,0,to,1 {
         tile = screen_player_row[player_legs_column_x[0]];      
+        if(tile >= FIRST_TILE + 33 || tile < FIRST_TILE + 33 + TRACK_TILE_COUNT - 1) {
+          // tile has been replaced
+          for j,0,to,TRACK_TILE_COUNT - 1 {
+            if(track_tiles[i] == tile) {
+              tile = replaced_tile[tile];
+            }
+          }
+        }
           
         if(tile == SNOWMAN_TILE3 || tile == SNOWMAN_TILE4 ||  tile == LOG7_TILE || tile == LOG8_TILE  || tile == LOG9_TILE  || tile == LOG10_TILE || tile == LOG11_TILE || tile == LOG12_TILE || tile == WATER1_TILE || tile == WATER2_TILE ) { //} || tile == TRI1_TILE || tile == TRI2_TILE || tile == TRI3_TILE || tile == TRI4_TILE ) {    
           playerCrash();
@@ -293,8 +315,16 @@ void checkCollisions() {
 
     // collisions with pickups
     if(level != 0) {
-      for i,0,to,2 {
+      for i,0,to,1 {
         tile = screen_player_row[player_column_x + i];
+        if(tile >= FIRST_TILE + 33 || tile < FIRST_TILE + 33 + TRACK_TILE_COUNT - 1) {
+          // tile has been replaced
+          for j,0,to,TRACK_TILE_COUNT - 1 {
+            if(track_tiles[i] == tile) {
+              tile = replaced_tile[tile];
+            }
+          }
+        }
         if(tile == S_TILE || tile == K_TILE || tile == I_TILE || tile == F_TILE || tile == R_TILE || tile == N_TILE) {
           screen_player_row[player_column_x + i] = BLANK_TILE;
           music_timer[1] = 0;
@@ -808,11 +838,13 @@ void drawPixel(word x_coordinate, byte color) {
 
     // get the tile index of the track tile
     free_tile_index = track_tiles[track_tile_index];
+    replaced_tile[track_tile_index] = tile_index;
 
     // copy current tile into it
     copyTile(tile_index, free_tile_index);    
     // set as the tile drawing into
     tile_index = free_tile_index;
+    
 
     // replace the tile on the screen with the track tile
     //screen_player_prev_row[tile_column.lo] = tile_index;  
