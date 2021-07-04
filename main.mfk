@@ -74,26 +74,29 @@ void main() {
       }
 
       while(vertical_scroll_amount.hi != 0) {
+
         
         scrollFine();
+        if(v_scroll_coarse_needed != 0) {
+          // need to shift everything up by one row
+          scrollCoarse();
+          playfieldNextRow();
+          checkCollisions();
+          coarseScrollTrackTiles();
+          v_scroll_coarse_needed = 0;
+        }
+
         playerMoveX();
-        drawPlayerTrack();        
-  
+        drawPlayerTrack();
         vertical_scroll_amount.hi = vertical_scroll_amount.hi - 1;        
       }
 
+              
 
       playerMoveY();
       playerDraw();
       playerCalculateSpeed();
 
-      if(v_scroll_coarse_needed != 0) {
-        // need to shift everything up by one row
-        scrollCoarse();
-        playfieldNextRow();
-        checkCollisions();
-        coarseScrollTrackTiles();
-      }
 
       animateWater();
 

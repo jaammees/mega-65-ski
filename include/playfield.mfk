@@ -656,14 +656,41 @@ void copyTile(byte fromTile, byte toTile) {
   }
 }
 
+
+array(byte) trail_offsets_left =  [0, 2, 2, 0, -1, -2, 0];
+array(byte) trail_offsets_right = [0,6,6, 4, 4, 2, 0];
+
 void drawPlayerTrack() {
+  byte offset;
+  byte i;
+  word x;
+
+  x = player_x >> 6;
+
+
+
   if(player_on_ground == 1) {
-    drawPixel(player_screen_x);
-    drawPixel(player_screen_x + 6);
+    if(player_direction != 0 && player_direction != 6) {
+
+      // handle the negative cases seperately
+      if(player_direction == 4) {
+        drawPixel(x - 1, 254);
+      } else if (player_direction == 5) {
+        drawPixel(x - 2, 254);
+      } else {
+        offset = trail_offsets_left[player_direction];
+        drawPixel(x + offset, 254);
+      }
+      offset = trail_offsets_right[player_direction];
+      drawPixel(x + offset, 254);
+    } 
+      
+    //drawPixel(player_screen_x + 2);
+    //drawPixel(player_screen_x + 6);
   }
 }
 
-void drawPixel(word x_coordinate) {
+void drawPixel(word x_coordinate, byte color) {
   word tile_column;
   byte tile_index;
   byte track_tile_index;
@@ -686,8 +713,9 @@ void drawPixel(word x_coordinate) {
 //  tile_index = left_leg_track_tile;// left_leg_track_tile; // FIRST_TILE + 6;// screen_player_row[5];//player_legs_column_x[0]];
 
   tile_column = x_coordinate >> 3; //player_legs_column_x[0];
-  tile_index = screen_player_prev_row[tile_column.lo];// left_leg_track_tile;// screen_player_row[player_legs_column_x[0]];
-
+//  tile_index = screen_player_prev_row[tile_column.lo];// left_leg_track_tile;// screen_player_row[player_legs_column_x[0]];
+  //screen_player_row
+  tile_index = screen_player_row[tile_column.lo];
   if(tile_index < FIRST_TILE + 33 || tile_index > FIRST_TILE + 33 + TRACK_TILE_COUNT - 1) {
 
     // need to replace it with a track tile
@@ -744,11 +772,12 @@ void drawPixel(word x_coordinate) {
     tile_index = free_tile_index;
 
     // replace the tile on the screen with the track tile
-    screen_player_prev_row[tile_column.lo] = tile_index;  
+    //screen_player_prev_row[tile_column.lo] = tile_index;  
+    screen_player_row[tile_column.lo] = tile_index;  
 
     // mark track tile as used and put in the row
     track_tile_used[track_tile_index] = 1;    
-    track_tile_row[track_tile_index] = 5;
+    track_tile_row[track_tile_index] = 6;
   }
 
 
@@ -756,11 +785,13 @@ void drawPixel(word x_coordinate) {
   tile_address = tile_address << 6;
 
   // x offset is just the lowest 3 bits
-  tile_x_offset = (x_coordinate.lo - 1) & %00000111;
+  tile_x_offset = (x_coordinate.lo) & %00000111;
 
   // y offset is (15 - v_scroll) / 2?
   tile_y_offset = (15 - v_scroll);
   tile_y_offset = tile_y_offset >> 1;
+//  tile_y_offset = v_scroll >> 1;
+//  tile_y_offset = 7 - tile_y_offset;
 
   // pixel address is tile_index * 64 + tile_x_offset + tile_y_offset * 8
   copy_to = 0;
@@ -768,7 +799,9 @@ void drawPixel(word x_coordinate) {
   copy_to = copy_to + tile_x_offset;
   copy_to = copy_to + tile_address;
 
-  copy_to[0] = 37;
+  if(copy_to[0] == 1) {
+    copy_to[0] = color;
+  }
 }
 
 // draw the next row to scroll up

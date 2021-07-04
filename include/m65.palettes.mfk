@@ -93,4 +93,14 @@ void setTilePalette() {
     vic4_blue_palette[i]  = palette_pointer[i + 512];
   }
 
+
+  // trail colour
+  vic4_red_palette[253]   = 0xee;
+  vic4_green_palette[253] = 0xee;
+  vic4_blue_palette[253]  = 0xee;
+
+  vic4_red_palette[254]   = 0xfd;
+  vic4_green_palette[254] = 0xfd;
+  vic4_blue_palette[254]  = 0xfd;
+
 }

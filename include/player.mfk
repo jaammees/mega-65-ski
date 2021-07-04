@@ -31,7 +31,7 @@ volatile byte vic_d010 @ $d010
 
 volatile byte vic_d020 @ $d020
 
-const byte PLAYER_SPRITE_OFFSET = 4;
+const byte PLAYER_SPRITE_OFFSET = 5;
 
 word player_speed_x;
 word player_speed_y;
@@ -88,7 +88,7 @@ void initPlayer() {
   invulnerable_counter = 0;
   flash_ski_counter = 0;
 
-  player_direction = 6;
+  player_direction = 3;//6;
   downhill_speed = 0;
   vertical_scroll_amount = 0;
   max_downhill_speed = 45;
@@ -97,6 +97,9 @@ void initPlayer() {
 
   celebrate_counter = 0;
   decrease_speed_counter = 0;
+
+  // x speed when facing straight down
+  player_speed_x = player_x_max_speeds[3];
 }
 
 void buttonDown() {
@@ -187,6 +190,8 @@ void playerIncreaseMisses() {
   if(invulnerable_counter > 0) {
     return;
   }
+
+//  return;
 
   music_position[0] = MISS_SOUND;
   music_timer[0] = 0;
@@ -347,19 +352,27 @@ void playerDraw() {
   column_x = (player_screen_x >> 3);
   player_column_x = column_x.lo;
 
-  column_x = (player_screen_x ) >> 3;
+  column_x = (player_screen_x + 5) >> 3;
   player_legs_column_x[0] = column_x.lo;
 
-  column_x = (player_screen_x + 8) >> 3;
+  column_x = (player_screen_x + 10) >> 3;
   player_legs_column_x[1] = column_x.lo;
 
   screen_x = player_screen_x + BORDER_WIDTH - PLAYER_SPRITE_OFFSET;
 
-  if(screen_x + 4 < 21) {
+//  if(player_x == 0) {//screen_x.hi == 0 && screen_x < BORDER_WIDTH - 5) { //player_screen_x  < BORDER_WIDTH- PLAYER_SPRITE_OFFSET - 5) {
+    //playerCrash();
+//  if(screen_x < BORDER_WIDTH + PLAYER_SPRITE_OFFSET + 1) {
+    //playerCrash();  
+//  }
+
+  // if screen x is negative or less than border width then crash
+  if(screen_x.hi > 1 || (screen_x.lo == 0 && screen_x < BORDER_WIDTH - PLAYER_SPRITE_OFFSET )) {
     playerCrash();
-    
   }
-  if(screen_x > 334) {
+
+  // player leg width is 6
+  if(screen_x > 320 + BORDER_WIDTH - PLAYER_SPRITE_OFFSET - 6) {
     playerCrash();
     
   }
