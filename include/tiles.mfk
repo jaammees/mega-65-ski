@@ -63,6 +63,11 @@ const byte WATER2_TILE     = FIRST_TILE + 68
 const byte WAVE1_TILE      = FIRST_TILE + 74
 const byte WAVE2_TILE      = FIRST_TILE + 75
 
+const byte WATER_TOP1_TILE  = FIRST_TILE + 86;
+const byte WATER_TOP2_TILE  = FIRST_TILE + 87;
+const byte WATER_TOP_RIGHT_CORNER = FIRST_TILE + 88;
+const byte WATER_TOP_LEFT_CORNER = FIRST_TILE + 85;
+
 const byte WATER_LEFT_EDGE1 = FIRST_TILE + 110
 const byte WATER_LEFT_EDGE2 = FIRST_TILE + 94
 const byte WATER_RIGHT_EDGE1 = FIRST_TILE + 111

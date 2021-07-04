@@ -114,6 +114,7 @@ byte snowman_row;
 
 byte water_counter;
 byte in_water_section;
+byte first_water_row;
 byte water_gap_size;
 byte water_direction;
 
@@ -164,6 +165,7 @@ void initPlayfield() {
   water_counter = 160;
   water_direction = 1;
   in_water_section = 0;
+  first_water_row = 0;
   water_gap_size = 15;
   water_next_row_tile1 = 0;
   water_next_row_tile2 = 0;
@@ -403,6 +405,7 @@ void startWaterSection() {
   }
 //  increaseDownhillSpeed();
   in_water_section = 1;
+  first_water_row = 1;
   water_position = next_gate_position - 5;
   if(water_position < 2) {
     water_position = 2;
@@ -441,6 +444,8 @@ void drawWater() {
   byte left_side_tile;
   byte temp;
   byte i;
+  byte temp2;
+
 
   for i,0,to,39 {
     temp = rand();
@@ -450,97 +455,132 @@ void drawWater() {
       screen_last_row[i] = WAVE1_TILE;
     } else if(temp < 8) {
       screen_last_row[i] = WAVE2_TILE;
-    }
-  }
-
-
-  if(water_next_row_tile1 != 0) {
-    screen_last_row[water_next_row_tile1_position] = water_next_row_tile1;
-  }
-  if(water_next_row_tile2 != 0) {
-    screen_last_row[water_next_row_tile2_position] = water_next_row_tile2;
-  }
-  temp = rand();
-  right_side_tile = WATER1_TILE;
-  if(water_next_row_tile1 != 0) {
-    right_side_tile = water_next_row_tile1;
-  }
-  left_side_tile = WATER_RIGHT_EDGE1;
-  water_next_row_tile1 = 0;
-  water_next_row_tile2 = 0;
-
-  if(temp > 80) {
-    if(water_direction == 0) {
-      // water is moving left
-      if(water_position > 3) {
-        water_position = water_position - 1;
-        right_side_tile = TRI4_TILE;
-        if(rand() > 128) {
-          right_side_tile = right_side_tile + 1;
-        }
-        water_next_row_tile1 = FIRST_TILE + 76;
-        water_next_row_tile1_position = water_position + water_gap_size;
-
-        left_side_tile = TRI2_TILE;
-        if(rand() > 128) {
-          left_side_tile = left_side_tile + 1;
-        }
-      } else {
-        water_direction = 1;
-      }
-    } else {
-      // water is moving right
-      if(water_position < (36 - water_gap_size)) {
-        right_side_tile = TRI1_TILE;
-        if(rand() > 128) {
-//          right_side_tile = right_side_tile + 1;
-        }
-        left_side_tile = TRI3_TILE;
-        if(rand() > 128) {
-          left_side_tile = left_side_tile + 1;
-        }
-        water_next_row_tile2 = FIRST_TILE + 77;
-        water_next_row_tile2_position = water_position;
-      } else {
-        water_direction = 0;
-      }
     }    
   }
 
-  //water_position = 20;
 
-  screen_last_row[water_position] = left_side_tile;
-
-  if(water_position > 1) {
-    temp = screen_last_row[water_position - 1];
-    if(temp == WAVE1_TILE || temp == WAVE2_TILE) {
-       screen_last_row[water_position - 1] = WATER2_TILE;
+  if(first_water_row == 1) {
+    first_water_row = 0;
+    for i,0,to,water_position-2 {
+      if(i & 1 == 1) {
+        temp = WATER_TOP1_TILE;
+      } else {
+        temp = WATER_TOP2_TILE;
+      }
+      screen_last_row[i] = temp;
     }
-    screen_last_row[water_position - 2] = WATER2_TILE;
-  }
-  
 
-  for i,1,to,water_gap_size {
-    screen_last_row[i + water_position] = BLANK_TILE;
-  }
+    if(water_position > 0) {
+      screen_last_row[water_position - 1] = WATER_TOP_RIGHT_CORNER;
+    }
 
-  temp = water_position + water_gap_size;
-  screen_last_row[temp] = right_side_tile;
-  if(temp < 37) {
+    temp2 = water_position + water_gap_size;
+    for i,temp2,to,39 {
+      if(i & 1 == 1) {
+        temp = WATER_TOP1_TILE;
+      } else {
+        temp = WATER_TOP2_TILE;
+      }
+      screen_last_row[i] = temp;
+    }
+
+    for i,0,to,water_gap_size - 1 {
+      screen_last_row[i + water_position] = BLANK_TILE;
+    }
+
+    screen_last_row[water_position + water_gap_size] = WATER_TOP_LEFT_CORNER;
+
+
+  } else {
+
+    if(water_next_row_tile1 != 0) {
+      screen_last_row[water_next_row_tile1_position] = water_next_row_tile1;
+    }
+    if(water_next_row_tile2 != 0) {
+      screen_last_row[water_next_row_tile2_position] = water_next_row_tile2;
+    }
+    temp = rand();
+    right_side_tile = WATER1_TILE;
+    if(water_next_row_tile1 != 0) {
+      right_side_tile = water_next_row_tile1;
+    }
+    left_side_tile = WATER_RIGHT_EDGE1;
+    water_next_row_tile1 = 0;
+    water_next_row_tile2 = 0;
+
+    if(temp > 80) {
+      if(water_direction == 0) {
+        // water is moving left
+        if(water_position > 3) {
+          water_position = water_position - 1;
+          right_side_tile = TRI4_TILE;
+          if(rand() > 128) {
+            right_side_tile = right_side_tile + 1;
+          }
+          water_next_row_tile1 = FIRST_TILE + 76;
+          water_next_row_tile1_position = water_position + water_gap_size;
+
+          left_side_tile = TRI2_TILE;
+          if(rand() > 128) {
+            left_side_tile = left_side_tile + 1;
+          }
+        } else {
+          water_direction = 1;
+        }
+      } else {
+        // water is moving right
+        if(water_position < (36 - water_gap_size)) {
+          right_side_tile = TRI1_TILE;
+          if(rand() > 128) {
+  //          right_side_tile = right_side_tile + 1;
+          }
+          left_side_tile = TRI3_TILE;
+          if(rand() > 128) {
+            left_side_tile = left_side_tile + 1;
+          }
+          water_next_row_tile2 = FIRST_TILE + 77;
+          water_next_row_tile2_position = water_position;
+        } else {
+          water_direction = 0;
+        }
+      }    
+    }
+
+    //water_position = 20;
+
+    screen_last_row[water_position] = left_side_tile;
+
+    if(water_position > 1) {
+      temp = screen_last_row[water_position - 1];
+      if(temp == WAVE1_TILE || temp == WAVE2_TILE) {
+        screen_last_row[water_position - 1] = WATER2_TILE;
+      }
+      screen_last_row[water_position - 2] = WATER2_TILE;
+    }
     
-    if(screen_last_row[temp + 1] == WAVE1_TILE || screen_last_row[temp + 1] == WAVE2_TILE) {
-      screen_last_row[temp + 1] = WATER2_TILE;
+
+    for i,1,to,water_gap_size {
+      screen_last_row[i + water_position] = BLANK_TILE;
     }
-    screen_last_row[temp + 2] = WATER2_TILE;
-  }
 
-  
-  if(right_side_tile == WATER1_TILE) {
-    screen_last_row[water_position + water_gap_size - 1] = WATER_LEFT_EDGE1;
-  }
+    temp = water_position + water_gap_size;
+    screen_last_row[temp] = right_side_tile;
+    if(temp < 37) {
+      
+      if(screen_last_row[temp + 1] == WAVE1_TILE || screen_last_row[temp + 1] == WAVE2_TILE) {
+        screen_last_row[temp + 1] = WATER2_TILE;
+      }
+      screen_last_row[temp + 2] = WATER2_TILE;
+    }
 
-  if(right_side_tile == TRI1_TILE) {
-    water_position = water_position + 1;
+    
+    if(right_side_tile == WATER1_TILE) {
+      screen_last_row[water_position + water_gap_size - 1] = WATER_LEFT_EDGE1;
+    }
+
+    if(right_side_tile == TRI1_TILE) {
+      water_position = water_position + 1;
+    }
   }
 
 }
