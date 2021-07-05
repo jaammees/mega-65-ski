@@ -11,6 +11,11 @@ const array line2 = ["COLLECT S K I TO RESET MISSES@" scr];
 const array line3 = ["PICKUPS F FASTER R SLOWER N NO PENALTY@" scr];
 const array line4 = ["BEAT THE HIGH SCORE THREE TIMES@" scr];
 
+
+const array times_zero = ["YOU HAVE NOT BEATEN THE HIGH SCORE YET@" scr];
+const array times_one = ["YOU HAVE BEATEN THE HIGH SCORE ONCE@" scr];
+const array times_two = ["YOU HAVE BEATEN THE HIGH SCORE TWICE@" scr];
+
 // next gate position
 byte next_gate_position;
 // counter to next gate
@@ -171,7 +176,7 @@ void initPlayfield() {
   water_direction = 1;
   in_water_section = 0;
   first_water_row = 0;
-  water_gap_size = 18;
+  water_gap_size = 16;
   water_next_row_tile1 = 0;
   water_next_row_tile2 = 0;
 
@@ -238,8 +243,17 @@ void drawTitles() {
   text_location[17] = R_TILE;
   text_location[26] = N_TILE;
 
-  text_location = $a81 + 40;
+  text_location = $a81 + 80;
   drawText(line4, text_location);
+
+  text_location = $a81 + 160;
+  if(times_high_score_achieved == 0) {
+    drawText(times_zero, text_location);
+  } else if(times_high_score_achieved == 1) {
+    drawText(times_one, text_location);
+  } else if(times_high_score_achieved == 2) {
+    drawText(times_two, text_location);
+  }
 }
 
 
