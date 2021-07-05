@@ -285,10 +285,10 @@ void checkCollisions() {
       tile = screen_player_row[player_legs_column_x[0]];
 
       if(tile >= FIRST_TILE + 33 || tile < FIRST_TILE + 33 + TRACK_TILE_COUNT - 1) {
-        // tile has been replaced
+        // collision with a tile used to draw the trail, look up original tile
         for j,0,to,TRACK_TILE_COUNT - 1 {
-          if(track_tiles[i] == tile) {
-            tile = replaced_tile[tile];
+          if(track_tiles[j] == tile) {
+            tile = replaced_tile[j];
           }
         }
       }
@@ -313,10 +313,10 @@ void checkCollisions() {
       //for i,0,to,1 {
         tile = screen_player_row[player_legs_column_x[0]];      
         if(tile >= FIRST_TILE + 33 || tile < FIRST_TILE + 33 + TRACK_TILE_COUNT - 1) {
-          // tile has been replaced
+         // collision with a tile used to draw the trail, look up original tile
           for j,0,to,TRACK_TILE_COUNT - 1 {
-            if(track_tiles[i] == tile) {
-              tile = replaced_tile[tile];
+            if(track_tiles[j] == tile) {
+              tile = replaced_tile[j];
             }
           }
         }
@@ -332,10 +332,10 @@ void checkCollisions() {
       for i,0,to,1 {
         tile = screen_player_row[player_column_x + i];
         if(tile >= FIRST_TILE + 33 || tile < FIRST_TILE + 33 + TRACK_TILE_COUNT - 1) {
-          // tile has been replaced
+          // collision with a tile used to draw the trail, look up original tile
           for j,0,to,TRACK_TILE_COUNT - 1 {
-            if(track_tiles[i] == tile) {
-              tile = replaced_tile[tile];
+            if(track_tiles[j] == tile) {
+              tile = replaced_tile[j];
             }
           }
         }
